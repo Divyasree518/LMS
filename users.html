@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vemu Library | Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --navy: #1C2B4A; 
+      --navy-dark: #121d33; 
+      --gold: #C8973A;
+      --gold-light: #E8DECE; 
+      --cream: #FAF7F2; 
+      --white: #FFFFFF;
+      --blue-accent: #3498db;
+    }
+
+    body { 
+      margin: 0; 
+      font-family: 'DM Sans', sans-serif; 
+      background: var(--navy); 
+      color: var(--navy); 
+      display: flex; 
+      height: 100vh;
+      overflow: hidden; 
+    }
+
+    /* Sidebar */
+    .sidebar { 
+      width: 280px; 
+      background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%); 
+      height: 100vh; 
+      position: fixed; 
+      border-right: 1px solid rgba(200, 151, 58, 0.2); 
+      padding: 40px 20px; 
+      box-sizing: border-box;
+    }
+    .sidebar h2 { 
+      font-family: 'Cormorant Garamond', serif; 
+      color: var(--gold-light); 
+      text-align: center; 
+      letter-spacing: 2px; 
+      margin-bottom: 40px; 
+    }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar a { 
+      color: rgba(255, 255, 255, 0.7); 
+      text-decoration: none; 
+      padding: 15px; 
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      border-radius: 10px; 
+      transition: 0.3s; 
+      margin-bottom: 5px;
+    }
+    .sidebar a:hover, .sidebar a.active { 
+      background: var(--gold); 
+      color: var(--navy); 
+      font-weight: 700; 
+    }
+
+    /* Main Content Area */
+    .main { 
+      margin-left: 280px; 
+      padding: 40px; 
+      width: calc(100% - 280px); 
+      background: var(--cream); 
+      overflow-y: auto; 
+      height: 100vh; 
+      box-sizing: border-box;
+    }
+
+    h1 { 
+      font-family: 'Cormorant Garamond', serif; 
+      font-size: 2.8rem; 
+      margin-bottom: 30px; 
+      color: var(--navy);
+    }
+    h1 em { color: var(--gold); font-style: italic; }
+
+    /* Stats Grid */
+    .stats-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+      gap: 25px; 
+    }
+    
+    .card {
+      background: var(--white); 
+      padding: 30px; 
+      border-radius: 20px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease; 
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.02);
+    }
+    
+    .card:hover { 
+      transform: translateY(-5px); 
+      box-shadow: 0 15px 35px rgba(8, 10, 140, 0.1);
+    }
+
+    .card i { 
+      font-size: 2rem; 
+      color: var(--white); 
+      background: var(--navy);
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+    /* Specific Icon Colors to match your blue/white theme */
+    .card.total i { background: var(--blue-accent); }
+    .card.students i { background: var(--gold); }
+    .card.faculty i { background: var(--navy); }
+    .card.admins i { background: #2ecc71; }
+
+    .card h3 { 
+      color: #666666; 
+      font-size: 0.85rem; 
+      text-transform: uppercase; 
+      letter-spacing: 1px;
+      margin: 0; 
+    }
+    
+    .card .value { 
+      font-size: 2.5rem; 
+      font-weight: 700; 
+      color: var(--navy); 
+      display: block; 
+      margin-top: 10px; 
+    }
+     .sidebar h3 { 
+        font-family: 'Cormorant Garamond', serif; color: var(--gold-light); 
+        text-align: center; margin-bottom: 40px; letter-spacing: 2px;
+     }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+     <h3>VEMU ADMIN</h3>
+    <ul>
+      <li><a href="users.html" class="active"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="adminstrator.html"><i class="fas fa-users-cog"></i> Manage Users</a></li>
+      <li><a href="reports.html"><i class="fas fa-file-invoice"></i> Reports</a></li>
+      <li><a href="backup.html"><i class="fas fa-hdd"></i> Backup & Recovery</a></li>
+      <li><a href="login.html" style="margin-top:50px; color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="main">
+    <h1>System <em>Overview</em></h1>
+    <div class="stats-grid">
+      <div class="card total">
+        <i class="fas fa-users"></i>
+        <h3>Total Users</h3>
+        <span class="value" id="totalUsers">0</span>
+      </div>
+      <div class="card students">
+        <i class="fas fa-user-graduate"></i>
+        <h3>Students</h3>
+        <span class="value" id="students">0</span>
+      </div>
+      <div class="card faculty">
+        <i class="fas fa-chalkboard-teacher"></i>
+        <h3>Faculty</h3>
+        <span class="value" id="faculty">0</span>
+      </div>
+      <div class="card admins">
+        <i class="fas fa-user-shield"></i>
+        <h3>Admins</h3>
+        <span class="value" id="admins">0</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateDashboard() {
+      let users = JSON.parse(localStorage.getItem('vemuUsers')) || [];
+      const stats = {
+        total: users.length,
+        admins: users.filter(u => u.role === 'admin').length,
+        students: users.filter(u => u.role === 'student').length,
+        faculty: users.filter(u => u.role === 'faculty' || u.role === 'faculty').length
+      };
+      localStorage.setItem('userStats', JSON.stringify(stats));
+      
+      document.getElementById('totalUsers').textContent = stats.total;
+      document.getElementById('admins').textContent = stats.admins;
+      document.getElementById('students').textContent = stats.students;
+      document.getElementById('faculty').textContent = stats.faculty;
+    }
+    
+    window.onload = updateDashboard;
+  </script>
+</body>
+</html>

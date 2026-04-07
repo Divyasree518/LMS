@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vemu Library | Academic Catalog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --navy: #1C2B4A; --navy-dark: #121d33; --gold: #C8973A;
+      --gold-light: #E8DECE; --cream: #FAF7F2; --white: #FFFFFF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--navy); height: 100vh; display: flex; overflow: hidden; }
+
+    .sidebar {
+      width: 260px; background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+      border-right: 1px solid rgba(200, 151, 58, 0.2); display: flex; flex-direction: column; padding: 30px 15px;
+    }
+    .sidebar-logo { text-align: center; margin-bottom: 40px; }
+    .sidebar-logo i { font-size: 2rem; color: var(--gold); margin-bottom: 10px; }
+    .sidebar-logo h2 { font-family: 'Cormorant Garamond', serif; color: var(--white); font-size: 1.4rem; }
+
+    .nav-menu a {
+      display: flex; align-items: center; gap: 12px; color: rgba(255, 255, 255, 0.6);
+      text-decoration: none; padding: 12px 15px; border-radius: 10px; margin-bottom: 5px; transition: 0.3s;
+    }
+    .nav-menu a:hover, .nav-menu a.active { background: var(--gold); color: var(--navy); font-weight: 700; }
+
+    .main-content { flex: 1; padding: 25px; display: flex; flex-direction: column; }
+    .glass-card {
+      background: var(--white); border-radius: 25px; flex: 1; padding: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column;
+    }
+
+    .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--cream); padding-bottom: 15px; }
+    .header-section h1 { font-family: 'Cormorant Garamond', serif; color: var(--navy); font-size: 2.2rem; }
+
+    .dept-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; }
+    .dept-btn {
+      padding: 10px 20px; border-radius: 25px; border: 1px solid var(--gold);
+      background: transparent; color: var(--navy); font-weight: 600; cursor: pointer; transition: 0.3s;
+    }
+    .dept-btn.active, .dept-btn:hover { background: var(--navy); color: white; border-color: var(--navy); }
+
+    .book-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px; overflow-y: auto; padding-right: 10px;
+    }
+    .book-card {
+      background: var(--cream); border-radius: 12px; padding: 12px;
+      transition: 0.4s; border: 1px solid transparent; text-align: center;
+    }
+    .book-card:hover { transform: translateY(-8px); border-color: var(--gold); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    
+    .book-img {
+      width: 100%; height: 230px; border-radius: 8px; background: #f0f0f0;
+      object-fit: cover; margin-bottom: 12px; box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
+    }
+    .book-info h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--navy); height: 2.4em; overflow: hidden; margin-bottom: 5px; }
+    .book-info p { font-size: 0.75rem; color: #666; font-style: italic; }
+
+    .book-grid::-webkit-scrollbar { width: 6px; }
+    .book-grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+     .sidebar h3 { 
+        font-family: 'Cormorant Garamond', serif; color: var(--gold-light); 
+        text-align: center; margin-bottom: 40px; letter-spacing: 2px;}
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <h3>VEMU ADMIN</h3>
+    <div class="nav-menu">
+      <a onclick="showSection('overview', this)" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="books.html"><i class="fas fa-book"></i> Book Catalog</a>
+      <a onclick="showSection('backup', this)"><i class="fas fa-database"></i> Backup & Recovery</a>
+      <a href="users.html"><i class="fas fa-users"></i> Manage Users</a>
+      <a href="login.html" style="margin-top: auto; border: 1px solid var(--gold);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </nav>
+
+
+  <main class="main-content">
+    <div class="glass-card">
+      <div class="header-section">
+        <h1>Academic <em>Inventory</em></h1>
+        <div style="color: var(--gold); font-weight: 700;">Available BOOKS</div>
+      </div>
+
+      <div class="dept-tabs">
+        <button class="dept-btn active" onclick="filterBooks('all', this)">All Depts</button>
+        <button class="dept-btn" onclick="filterBooks('cse', this)">CSE</button>
+        <button class="dept-btn" onclick="filterBooks('ece', this)">ECE</button>
+        <button class="dept-btn" onclick="filterBooks('eee', this)">EEE</button>
+        <button class="dept-btn" onclick="filterBooks('mech', this)">MECH</button>
+        <button class="dept-btn" onclick="filterBooks('civil', this)">CIVIL</button>
+      </div>
+
+      <div class="book-grid" id="bookGrid">
+        
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/919NOC6N2zL.jpg" class="book-img"><h4>Intro to Algorithms</h4><p>Cormen</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/81S7m1-A6SL.jpg" class="book-img"><h4>Modern OS</h4><p>Tanenbaum</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/81z7-tC77pL.jpg" class="book-img"><h4>Database Systems</h4><p>Silberschatz</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/41grvX-37XL.jpg" class="book-img"><h4>Computer Networks</h4><p>Forouzan</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/51p0v70U27L.jpg" class="book-img"><h4>Compiler Design</h4><p>Aho Ullman</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/51rR0pY96ZL.jpg" class="book-img"><h4>Theory of Comp</h4><p>Sipser</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/41xShlnTZTL.jpg" class="book-img"><h4>Clean Code</h4><p>Robert Martin</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/51Z9NoU6OXL.jpg" class="book-img"><h4>Artificial Intel</h4><p>Russell</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/51L7X84S8fL.jpg" class="book-img"><h4>Java Ref</h4><p>Schildt</p></div>
+        <div class="book-card" data-dept="cse"><img src="https://m.media-amazon.com/images/I/51-nO62B3jL.jpg" class="book-img"><h4>Software Eng</h4><p>Pressman</p></div>
+
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/51WfF-L-AHL.jpg" class="book-img"><h4>Digital Design</h4><p>Morris Mano</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/51U-V-8-SJL.jpg" class="book-img"><h4>Antenna Theory</h4><p>Balanis</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/81M6F7Y5kFL.jpg" class="book-img"><h4>Signals & Sys</h4><p>Oppenheim</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/519S-X-U-8DL.jpg" class="book-img"><h4>Comm Systems</h4><p>Haykin</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/71Y00N6vOAL.jpg" class="book-img"><h4>Microelectronics</h4><p>Sedra Smith</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/51-nO62B3jL.jpg" class="book-img"><h4>Embedded Sys</h4><p>Raj Kamal</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/51vIq3uD4aL.jpg" class="book-img"><h4>Control Sys</h4><p>Nagrath</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/41W-f-L-AHL.jpg" class="book-img"><h4>Optical Fiber</h4><p>Keiser</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/51X1v8-SJL.jpg" class="book-img"><h4>Radar Systems</h4><p>Skolnik</p></div>
+        <div class="book-card" data-dept="ece"><img src="https://m.media-amazon.com/images/I/519S-X-U-8DL.jpg" class="book-img"><h4>VLSI Design</h4><p>Weste</p></div>
+
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Elec Machines</h4><p>Bimbhra</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/51nO62B3j0L.jpg" class="book-img"><h4>Power Electronics</h4><p>Rashid</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/71F7X84S8fL.jpg" class="book-img"><h4>Power Systems</h4><p>Wadhwa</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/51f9S-U-8DL.jpg" class="book-img"><h4>Network Analysis</h4><p>Valkenburg</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/51vIq3uD4aL.jpg" class="book-img"><h4>Control Eng</h4><p>Nagrath</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/51-nO62B3jL.jpg" class="book-img"><h4>Electric Drives</h4><p>Dubey</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>High Voltage</h4><p>Naidu</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/51f9S-U-8DL.jpg" class="book-img"><h4>Renewable Energy</h4><p>Khan</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/51vIq3uD4aL.jpg" class="book-img"><h4>Smart Grid</h4><p>Keyhani</p></div>
+        <div class="book-card" data-dept="eee"><img src="https://m.media-amazon.com/images/I/51-nO62B3jL.jpg" class="book-img"><h4>Modern Control</h4><p>Ogata</p></div>
+
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/71uVfX7fKDL.jpg" class="book-img"><h4>Thermodynamics</h4><p>Cengel</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/51-nO62B3jL.jpg" class="book-img"><h4>Fluid Mechanics</h4><p>Frank White</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Machine Design</h4><p>Shigley</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/71uVfX7fKDL.jpg" class="book-img"><h4>Heat Transfer</h4><p>Holman</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/51-nO62B3jL.jpg" class="book-img"><h4>Theory of Mach</h4><p>Rattan</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Manufacturing</h4><p>Kalpakjian</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/71uVfX7fKDL.jpg" class="book-img"><h4>Solid Mechanics</h4><p>Popov</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/51-nO62B3jL.jpg" class="book-img"><h4>IC Engines</h4><p>Ganesan</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Auto Eng</h4><p>Kripal Singh</p></div>
+        <div class="book-card" data-dept="mech"><img src="https://m.media-amazon.com/images/I/71uVfX7fKDL.jpg" class="book-img"><h4>Mechatronics</h4><p>Bolton</p></div>
+
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/51nO62B3j0L.jpg" class="book-img"><h4>Structural Analysis</h4><p>Hibbeler</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Surveying</h4><p>Punmia</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/51nO62B3j0L.jpg" class="book-img"><h4>Soil Mechanics</h4><p>Gopal Ranjan</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Concrete Tech</h4><p>Shetty</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/51nO62B3j0L.jpg" class="book-img"><h4>Hydrology</h4><p>Subramanya</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Irrigation Eng</h4><p>Garg</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/51nO62B3j0L.jpg" class="book-img"><h4>Transport Eng</h4><p>Khanna</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Steel Structure</h4><p>Duggal</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/51nO62B3j0L.jpg" class="book-img"><h4>Build Construct</h4><p>Rangwala</p></div>
+        <div class="book-card" data-dept="civil"><img src="https://m.media-amazon.com/images/I/518Q9W+B2ML.jpg" class="book-img"><h4>Foundation Eng</h4><p>Murthy</p></div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function filterBooks(dept, btn) {
+      document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cards = document.querySelectorAll('.book-card');
+      cards.forEach(card => {
+        card.style.display = (dept === 'all' || card.dataset.dept === dept) ? 'block' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

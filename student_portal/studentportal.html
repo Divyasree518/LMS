@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>📚 Royal Library | Student Portal with Popup Alerts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafd 0%, #eef2f8 100%);
+            min-height: 100vh;
+        }
+
+        /* ========== NAVBAR (Gold & Navy) ========== */
+        .navbar {
+            background: #0a1a2f;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid #d4af37;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f5e7b2, #d4af37);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            color: #e6edf6;
+            transition: 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 40px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(212, 175, 55, 0.15);
+            border-bottom: 2px solid #d4af37;
+        }
+
+        .notification-badge {
+            background: #d9534f;
+            color: white;
+            border-radius: 50px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .logout-btn {
+            background: #d4af37;
+            color: #0a1a2f;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #c5a028;
+            color: #0a1a2f;
+            transform: scale(0.97);
+        }
+
+        /* main container */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .active-page {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* card styling gold accent */
+        .card-elegant {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            padding: 1.8rem;
+            border-top: 5px solid #d4af37;
+            transition: all 0.2s;
+        }
+
+        /* search bar */
+        .search-wrapper {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 22px;
+            border: 2px solid #e2e8f0;
+            border-radius: 60px;
+            font-size: 1rem;
+            background: #fff;
+            transition: 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.2);
+        }
+
+        .btn-gold {
+            background: #d4af37;
+            color: #0a1a2f;
+            border: none;
+            padding: 0 28px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-gold:hover {
+            background: #c2a12e;
+            transform: scale(0.97);
+        }
+
+        .btn-navy {
+            background: #0a1a2f;
+            color: #d4af37;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* book grid */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 1.8rem;
+            margin-top: 1rem;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            transition: transform 0.25s, box-shadow 0.25s;
+            border: 1px solid #ede9d0;
+        }
+
+        .book-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.12);
+        }
+
+        .book-img {
+            background: linear-gradient(145deg, #faf6ea, #f3ecd9);
+            height: 170px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #b88b2c;
+        }
+
+        .book-info {
+            padding: 1rem 1.2rem 1.3rem;
+        }
+
+        .book-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #0a1a2f;
+        }
+
+        .book-author {
+            color: #5f6c84;
+            font-size: 0.85rem;
+            margin: 5px 0;
+        }
+
+        .book-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            margin: 8px 0;
+        }
+
+        .status-avail { background: #e0f2e6; color: #1f7840; }
+        .status-borrowed { background: #fff0e0; color: #b45b0a; }
+
+        .book-btn {
+            width: 100%;
+            margin-top: 12px;
+            background: #0a1a2f;
+            color: #d4af37;
+            border: none;
+            padding: 8px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .book-btn:hover:not(:disabled) {
+            background: #d4af37;
+            color: #0a1a2f;
+        }
+
+        /* history table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history-table th, .history-table td {
+            padding: 14px 10px;
+            text-align: left;
+            border-bottom: 1px solid #e9edf2;
+        }
+        .fine-badge {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: bold;
+        }
+
+        /* NOTIFICATION PAGE STYLES */
+        .notif-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 550px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .notif-item {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            border-left: 6px solid;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: all 0.2s;
+        }
+        .notif-item:hover {
+            background: #fffcf0;
+            transform: translateX(3px);
+        }
+        .notif-icon {
+            font-size: 1.8rem;
+        }
+        .notif-content {
+            flex: 1;
+        }
+        .notif-title {
+            font-weight: 800;
+            color: #0a1a2f;
+            margin-bottom: 5px;
+        }
+        .notif-desc {
+            color: #4b5568;
+            font-size: 0.85rem;
+        }
+        .notif-time {
+            font-size: 0.7rem;
+            color: #a0aec0;
+            margin-top: 6px;
+        }
+        .warning-notif {
+            border-left-color: #e67e22;
+            background: #fff7ed;
+        }
+        .info-notif {
+            border-left-color: #2c6e2c;
+            background: #f0f9f0;
+        }
+        .alert-notif {
+            border-left-color: #e53e3e;
+            background: #fff5f5;
+        }
+        .clear-notif-btn {
+            background: #e2e8f0;
+            color: #2d3748;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* profile */
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .profile-row {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .profile-label {
+            width: 140px;
+            font-weight: 700;
+            color: #0a1a2f;
+        }
+        .edit-input {
+            border: 1px solid #d4af37;
+            border-radius: 28px;
+            padding: 8px 14px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        /* ========== CUSTOM POPUP MODAL ========== */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+ backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+        .popup-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fffef7 100%);
+            border-radius: 48px;
+            max-width: 450px;
+            width: 90%;
+            padding: 2rem 2rem 1.8rem;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+            border-top: 8px solid #d4af37;
+            animation: slideUp 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .popup-icon {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+        }
+        .popup-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0a1a2f;
+            margin: 0.5rem 0;
+        }
+        .popup-message {
+            color: #4a5568;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
+        .popup-detail {
+            background: #f8f4e8;
+            border-radius: 28px;
+            padding: 12px;
+            margin: 1rem 0;
+            font-weight: 500;
+            color: #b85c00;
+        }
+        .popup-btn {
+            background: #d4af37;
+            color: #0a1a2f;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.8rem;
+            transition: 0.2s;
+        }
+        .popup-btn:hover {
+            background: #c2a12e;
+            transform: scale(0.96);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 720px) {
+            .navbar { flex-direction: column; gap: 12px; }
+            .profile-label { width: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo-area">
+        <!-- <span class="logo-icon">👑📚</span> -->
+        <span class="logo-text">Vemu Library Management System</span>
+    </div>
+    <div class="nav-links">
+        <button class="nav-item active" data-page="home">🏠 Home</button>
+        <button class="nav-item" data-page="history">📜 History</button>
+        <button class="nav-item" data-page="notifications">🔔 Notifications <span id="notifBadge" class="notification-badge">0</span></button>
+        <button class="nav-item" data-page="profile">👤 My Profile</button>
+        <button class="nav-item logout-btn" id="logoutBtn">🚪 Logout</button>
+    </div>
+</nav>
+
+<div class="main-container">
+    <!-- HOME PAGE -->
+    <div id="homePage" class="page active-page">
+        <div class="card-elegant">
+            <h2 style="color:#0a1a2f; margin-bottom: 1rem;">📖 Explore Collection</h2>
+            <div class="search-wrapper">
+                <input type="text" id="searchBookInput" class="search-input" placeholder="Search by book title, author...">
+                <button id="searchBookBtn" class="btn-gold">🔍 Search</button>
+            </div>
+            <div id="booksContainer" class="book-grid"></div>
+        </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div id="historyPage" class="page">
+        <div class="card-elegant">
+            <h2 style="color:#0a1a2f;">📚 Borrowing History & Fines</h2>
+            <div style="overflow-x: auto; margin-top: 1rem;">
+                <table class="history-table">
+                    <thead><tr><th>Book</th><th>Issued Date</th><th>Returned Date</th><th>Status</th><th>Fine (₹)</th><th></th> </thead>
+                    <tbody id="historyBody"></tbody>
+                </table>
+            </div>
+            <p class="fine-badge" style="display: inline-block; margin-top: 1rem;">⚠️ Fine: ₹10/day after 10 days from issue.</p>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION PAGE -->
+    <div id="notificationsPage" class="page">
+        <div class="card-elegant">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.2rem;">
+                <h2 style="color:#0a1a2f;">🔔 Notifications Center</h2>
+                <button id="clearAllNotifs" class="clear-notif-btn">🗑️ Clear All</button>
+            </div>
+            <div id="notificationsList" class="notif-list">
+                <div style="text-align:center; padding: 2rem;">Loading alerts...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="profilePage" class="page">
+        <div class="card-elegant">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <h2 style="color:#0a1a2f;">👤 Student Profile</h2>
+                <button id="editProfileBtn" class="btn-navy">✏️ Edit</button>
+            </div>
+            <div id="profileDisplay" class="profile-details"></div>
+            <div id="editProfileForm" style="display: none; margin-top: 20px;">
+                <div class="profile-row"><span class="profile-label">Full Name:</span><input type="text" id="editName" class="edit-input"></div>
+                <div class="profile-row"><span class="profile-label">Email:</span><input type="email" id="editEmail" class="edit-input"></div>
+                <div class="profile-row"><span class="profile-label">College ID:</span><input type="text" id="editCollegeId" class="edit-input"></div>
+                <div class="profile-row"><span class="profile-label">Mobile:</span><input type="text" id="editMobile" class="edit-input"></div>
+                <div class="profile-row"><span class="profile-label">Branch:</span><input type="text" id="editBranch" class="edit-input"></div>
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button id="saveProfileBtn" class="btn-gold">💾 Save</button>
+                    <button id="cancelEditBtn" class="btn-navy">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- POPUP FUNCTION (Elegant Toast-like Modal) ----------
+    function showPopup(title, message, icon, detailText = null) {
+        // remove existing overlay if any
+        const existingOverlay = document.querySelector('.popup-overlay');
+        if(existingOverlay) existingOverlay.remove();
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'popup-overlay';
+        const popupHTML = `
+            <div class="popup-card">
+                <div class="popup-icon">${icon}</div>
+                <div class="popup-title">${escapeHtml(title)}</div>
+                <div class="popup-message">${escapeHtml(message)}</div>
+                ${detailText ? `<div class="popup-detail">${escapeHtml(detailText)}</div>` : ''}
+                <button class="popup-btn" id="closePopupBtn">Got it</button>
+            </div>
+        `;
+        overlay.innerHTML = popupHTML;
+        document.body.appendChild(overlay);
+        const closeBtn = overlay.querySelector('#closePopupBtn');
+        closeBtn.addEventListener('click', () => overlay.remove());
+        // auto close after 4 seconds
+        setTimeout(() => {
+            if(overlay && overlay.parentNode) overlay.remove();
+        }, 5000);
+    }
+
+    // ---------- DATA MODELS ----------
+    let studentProfile = {
+        name: "Dviya",
+        email: "divyasreebuchipalli@gmail.com",
+        collegeId: "STU2024101",
+        mobile: "+91 8374006812",
+        branch: "Artificial Intellegence and Machine Learning"
+    };
+
+    let booksCatalog = [
+        { id: "B001", title: "The Midnight Library", author: "Matt Haig", available: true, coverIcon: "🌙" },
+        { id: "B002", title: "Atomic Habits", author: "James Clear", available: true, coverIcon: "⚛️" },
+        { id: "B003", title: "Deep Work", author: "Cal Newport", available: false, coverIcon: "🧠" },
+        { id: "B004", title: "Dune", author: "Frank Herbert", available: true, coverIcon: "🏜️" },
+        { id: "B005", title: "Clean Code", author: "Robert Martin", available: true, coverIcon: "🧹" },
+        { id: "B006", title: "The Alchemist", author: "Paulo Coelho", available: true, coverIcon: "✨" },
+        { id: "B007", title: "Sapiens", author: "Yuval Harari", available: false, coverIcon: "🌍" },
+        { id: "B008", title: "Python Crash Course", author: "Eric Matthes", available: true, coverIcon: "🐍" }
+    ];
+
+    let borrowHistory = [
+        { id: "H1", bookId: "B003", bookTitle: "Deep Work", issuedDate: "2026-03-15", returnedDate: null, fine: 0 },
+        { id: "H2", bookId: "B007", bookTitle: "Sapiens", issuedDate: "2026-03-20", returnedDate: null, fine: 0 }
+    ];
+
+    let notifications = [
+        { id: "N1", type: "warning", title: "⚠️ Upcoming Due Date", message: "Book 'Deep Work' is due soon. Return tomorrow to avoid fine!", timestamp: new Date().toISOString(), read: false },
+        { id: "N2", type: "info", title: "📘 Welcome!", message: "You have 2 active borrowings. Keep track of due dates.", timestamp: new Date(Date.now() - 86400000).toISOString(), read: false }
+    ];
+
+    // Helper functions
+    function addNotification(type, title, message) {
+        const newNotif = {
+            id: "N"+Date.now()+Math.random(),
+            type: type,
+            title: title,
+            message: message,
+            timestamp: new Date().toISOString(),
+            read: false
+        };
+        notifications.unshift(newNotif);
+        updateNotificationBadge();
+        renderNotificationsPage();
+    }
+
+    function updateNotificationBadge() {
+        const unreadCount = notifications.filter(n => !n.read).length;
+        const badge = document.getElementById("notifBadge");
+        if(badge) {
+            badge.innerText = unreadCount;
+            badge.style.display = unreadCount > 0 ? "inline-block" : "none";
+        }
+    }
+
+    function updateFines() {
+        borrowHistory.forEach(entry => {
+            if (entry.returnedDate === null) {
+                const issued = new Date(entry.issuedDate);
+                const today = new Date();
+                const diffDays = Math.floor((today - issued) / (86400000));
+                entry.fine = diffDays > 10 ? (diffDays - 10) * 10 : 0;
+            }
+        });
+    }
+
+    function getDueDateString(issueDate) {
+        let due = new Date(issueDate);
+        due.setDate(due.getDate() + 10);
+        return due.toISOString().slice(0,10);
+    }
+
+    // Issue book with POPUP
+    function issueBook(bookId) {
+        const book = booksCatalog.find(b => b.id === bookId);
+        if (!book || !book.available) {
+            showPopup("❌ Cannot Issue", "This book is currently not available.", "📕", "Please try another book.");
+            return false;
+        }
+        book.available = false;
+        const todayStr = new Date().toISOString().slice(0,10);
+        const dueDate = getDueDateString(todayStr);
+        const newRecord = {
+            id: "H" + Date.now(),
+            bookId: book.id,
+            bookTitle: book.title,
+            issuedDate: todayStr,
+            returnedDate: null,
+            fine: 0
+        };
+        borrowHistory.push(newRecord);
+        updateFines();
+        
+        // POPUP for booking success
+        showPopup("📘 Book Issued Successfully!", `You have borrowed "${book.title}"`, "✅", `Due Date: ${dueDate} | Return within 10 days to avoid fine.`);
+        
+        addNotification('info', '📘 Book Issued', `You successfully booked "${book.title}" on ${todayStr}. Due date: ${dueDate}`);
+        
+        renderHomePage();
+        renderHistoryPage();
+        renderNotificationsPage();
+        return true;
+    }
+
+    // Return book with POPUP including fine details
+    function returnBook(historyId) {
+        const record = borrowHistory.find(r => r.id === historyId);
+        if (!record || record.returnedDate !== null) return;
+        
+        const todayStr = new Date().toISOString().slice(0,10);
+        record.returnedDate = todayStr;
+        const issued = new Date(record.issuedDate);
+        const returned = new Date(todayStr);
+        const diffDays = Math.floor((returned - issued) / 86400000);
+        let finalFine = 0;
+        if (diffDays > 10) finalFine = (diffDays - 10) * 10;
+        record.fine = finalFine;
+        
+        const book = booksCatalog.find(b => b.id === record.bookId);
+        if (book) book.available = true;
+        updateFines();
+        
+        // POPUP for return with fine status
+        if (finalFine > 0) {
+            showPopup("💰 Book Returned with Fine", `You returned "${record.bookTitle}"`, "⚠️", `Fine Amount: ₹${finalFine} (${diffDays-10} days overdue × ₹10)`);
+            addNotification('alert', '💰 Fine Incurred', `You returned "${record.bookTitle}" with fine ₹${finalFine} due to delay.`);
+        } else {
+            const daysKept = diffDays;
+            showPopup("📖 Book Returned Successfully!", `Thank you for returning "${record.bookTitle}"`, "🎉", `No fines! You kept it for ${daysKept} days.`);
+            addNotification('info', '📖 Book Returned', `You returned "${record.bookTitle}" on ${todayStr}. No fines. Great job!`);
+        }
+        
+        renderHomePage();
+        renderHistoryPage();
+        renderNotificationsPage();
+    }
+
+    // Fine warning popup trigger when due tomorrow
+    function checkAndShowFineWarning() {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        borrowHistory.forEach(entry => {
+            if(entry.returnedDate === null) {
+                const issued = new Date(entry.issuedDate);
+                const diffDays = Math.floor((today - issued) / (86400000));
+                if (diffDays === 9) {
+                    // warning popup: tomorrow fine will start
+                    showPopup("⚠️ Due Date Alert!", `"${entry.bookTitle}" is due TOMORROW!`, "⏰", "If not returned by tomorrow, fine of ₹10/day will apply.");
+                    addNotification('warning', '🔔 Return Tomorrow!', `Book "${entry.bookTitle}" is due tomorrow. Return to avoid fines.`);
+                }
+                if (diffDays === 10) {
+                    showPopup("⚠️ Fine Started!", `"${entry.bookTitle}" is now OVERDUE!`, "💰", "Fine of ₹10/day has been applied from today.");
+                    addNotification('alert', '⚠️ Overdue Fine', `"${entry.bookTitle}" is overdue. Fine accumulating ₹10/day.`);
+                }
+            }
+        });
+    }
+
+    // render functions
+    function renderHomePage() {
+        const term = document.getElementById("searchBookInput")?.value.toLowerCase() || "";
+        let filtered = booksCatalog.filter(b => b.title.toLowerCase().includes(term) || b.author.toLowerCase().includes(term));
+        const container = document.getElementById("booksContainer");
+        if(filtered.length===0) { container.innerHTML = `<div style="text-align:center; padding:2rem;">No books found</div>`; return; }
+        container.innerHTML = filtered.map(book => `
+            <div class="book-card">
+                <div class="book-img">${book.coverIcon}</div>
+                <div class="book-info">
+                    <div class="book-title">${escapeHtml(book.title)}</div>
+                    <div class="book-author">✍️ ${escapeHtml(book.author)}</div>
+                    <div class="book-status ${book.available ? 'status-avail' : 'status-borrowed'}">${book.available ? '✅ Available' : '🔴 Borrowed'}</div>
+                    <button class="book-btn" data-id="${book.id}" ${!book.available ? 'disabled' : ''}>${book.available ? '📘 Book It' : 'Unavailable'}</button>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.book-btn[data-id]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = btn.getAttribute('data-id');
+                const book = booksCatalog.find(b => b.id === id);
+                if(book && book.available) issueBook(id);
+                else if(book && !book.available) showPopup("🔴 Unavailable", `"${book.title}" is already borrowed.`, "📕", "Please check other books.");
+            });
+        });
+    }
+
+    function renderHistoryPage() {
+        updateFines();
+        const tbody = document.getElementById("historyBody");
+        if(borrowHistory.length===0) { tbody.innerHTML='<tr><td colspan="6">No history</td></tr>'; return; }
+        tbody.innerHTML = borrowHistory.map(entry => {
+            const returnedDisplay = entry.returnedDate ? entry.returnedDate : "— Active";
+            const status = entry.returnedDate ? "Returned" : "Borrowed";
+            const showReturn = !entry.returnedDate;
+            const fineAmount = entry.fine || 0;
+            return `<tr>
+                <td><strong>${escapeHtml(entry.bookTitle)}</strong></td>
+                <td>${entry.issuedDate}</td>
+                <td>${returnedDisplay}</td>
+                <td>${status}</td>
+                <td>${fineAmount > 0 ? `<span class="fine-badge">₹${fineAmount}</span>` : '₹0'}</td>
+                <td>${showReturn ? `<button class="return-btn" data-id="${entry.id}" style="background:#d4af37; border:none; padding:5px 14px; border-radius:40px; cursor:pointer;">↩️ Return</button>` : '—'}</td>
+            </tr>`;
+        }).join('');
+        document.querySelectorAll('.return-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const hid = btn.getAttribute('data-id');
+                returnBook(hid);
+            });
+        });
+    }
+
+    function renderNotificationsPage() {
+        const container = document.getElementById("notificationsList");
+        if(!container) return;
+        if(notifications.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding:2rem;">✨ No new notifications. Stay tuned!</div>`;
+            return;
+        }
+        container.innerHTML = notifications.map(notif => {
+            let icon = notif.type === 'warning' ? '⏰' : (notif.type === 'alert' ? '🔴' : '📢');
+            let borderClass = notif.type === 'warning' ? 'warning-notif' : (notif.type === 'alert' ? 'alert-notif' : 'info-notif');
+            let timeAgo = new Date(notif.timestamp).toLocaleString();
+            return `
+                <div class="notif-item ${borderClass}" data-id="${notif.id}">
+                    <div class="notif-icon">${icon}</div>
+                    <div class="notif-content">
+                        <div class="notif-title">${escapeHtml(notif.title)}</div>
+                        <div class="notif-desc">${escapeHtml(notif.message)}</div>
+                        <div class="notif-time">${timeAgo}</div>
+                    </div>
+                    <button class="clear-notif-btn delete-notif" data-id="${notif.id}" style="background:transparent;">✖️</button>
+                </div>
+            `;
+        }).join('');
+        document.querySelectorAll('.delete-notif').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.getAttribute('data-id');
+                notifications = notifications.filter(n => n.id !== id);
+                updateNotificationBadge();
+                renderNotificationsPage();
+            });
+        });
+    }
+
+    function renderProfilePage() {
+        const displayDiv = document.getElementById("profileDisplay");
+        displayDiv.innerHTML = `
+            <div class="profile-row"><span class="profile-label">Full Name:</span><span>${escapeHtml(studentProfile.name)}</span></div>
+            <div class="profile-row"><span class="profile-label">Email:</span><span>${escapeHtml(studentProfile.email)}</span></div>
+            <div class="profile-row"><span class="profile-label">College ID:</span><span>${escapeHtml(studentProfile.collegeId)}</span></div>
+            <div class="profile-row"><span class="profile-label">Mobile:</span><span>${escapeHtml(studentProfile.mobile)}</span></div>
+            <div class="profile-row"><span class="profile-label">Branch:</span><span>${escapeHtml(studentProfile.branch)}</span></div>
+        `;
+        document.getElementById("editName").value = studentProfile.name;
+        document.getElementById("editEmail").value = studentProfile.email;
+        document.getElementById("editCollegeId").value = studentProfile.collegeId;
+        document.getElementById("editMobile").value = studentProfile.mobile;
+        document.getElementById("editBranch").value = studentProfile.branch;
+    }
+
+    function saveProfile() {
+        studentProfile.name = document.getElementById("editName").value.trim() || studentProfile.name;
+        studentProfile.email = document.getElementById("editEmail").value.trim() || studentProfile.email;
+        studentProfile.collegeId = document.getElementById("editCollegeId").value.trim() || studentProfile.collegeId;
+        studentProfile.mobile = document.getElementById("editMobile").value.trim() || studentProfile.mobile;
+        studentProfile.branch = document.getElementById("editBranch").value.trim() || studentProfile.branch;
+        renderProfilePage();
+        document.getElementById("editProfileForm").style.display = "none";
+        document.getElementById("profileDisplay").style.display = "flex";
+        showPopup("✅ Profile Updated", "Your information has been saved successfully.", "👤");
+        addNotification('info', 'Profile Updated', 'Your profile information has been updated successfully.');
+    }
+
+    function switchPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId + 'Page').classList.add('active-page');
+        document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+            if(item.getAttribute('data-page') === pageId) item.classList.add('active');
+            else item.classList.remove('active');
+        });
+        if(pageId === 'notifications') { notifications.forEach(n => n.read = true); updateNotificationBadge(); renderNotificationsPage(); }
+        if(pageId === 'home') renderHomePage();
+        if(pageId === 'history') renderHistoryPage();
+        if(pageId === 'profile') renderProfilePage();
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    // Event listeners
+    document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
+        btn.addEventListener('click', () => switchPage(btn.getAttribute('data-page')));
+    });
+    document.getElementById("logoutBtn").addEventListener("click", () => { showPopup("🚪 Logged Out", "You have been logged out successfully.", "👋"); switchPage('home'); });
+    document.getElementById("searchBookBtn").addEventListener("click", () => renderHomePage());
+    document.getElementById("searchBookInput").addEventListener("keyup", () => renderHomePage());
+    document.getElementById("editProfileBtn").addEventListener("click", () => {
+        document.getElementById("profileDisplay").style.display = "none";
+        document.getElementById("editProfileForm").style.display = "block";
+    });
+    document.getElementById("saveProfileBtn").addEventListener("click", saveProfile);
+    document.getElementById("cancelEditBtn").addEventListener("click", () => {
+        document.getElementById("editProfileForm").style.display = "none";
+        document.getElementById("profileDisplay").style.display = "flex";
+    });
+    document.getElementById("clearAllNotifs")?.addEventListener("click", () => {
+        notifications = [];
+        updateNotificationBadge();
+        renderNotificationsPage();
+        showPopup("🧹 Notifications Cleared", "All notifications have been removed.", "✨");
+    });
+
+    // initial render & fine warnings
+    updateFines();
+    checkAndShowFineWarning();
+    renderHomePage();
+    renderHistoryPage();
+    renderProfilePage();
+    renderNotificationsPage();
+    updateNotificationBadge();
+</script>
+</body>
+</html>

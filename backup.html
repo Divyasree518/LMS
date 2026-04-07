@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vemu Library | Backup & Recovery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      :root {
+        --navy: #1C2B4A; --navy-dark: #121d33; --gold: #C8973A;
+        --cream: #FAF7F2; --white: #FFFFFF; --success: #20e170;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'DM Sans', sans-serif; background: var(--navy); height: 100vh; display: flex; overflow: hidden; }
+
+      /* Sidebar */
+      .sidebar {
+        width: 280px; background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+        padding: 40px 20px; border-right: 1px solid rgba(200, 151, 58, 0.2);
+      }
+      .sidebar h3 { font-family: 'Cormorant Garamond', serif; color: #E8DECE; text-align: center; margin-bottom: 40px; letter-spacing: 2px; }
+      .nav-menu a {
+        display: flex; align-items: center; gap: 15px; color: rgba(255, 255, 255, 0.7);
+        text-decoration: none; padding: 15px; border-radius: 10px; transition: 0.3s; margin-bottom: 5px;
+      }
+      .nav-menu a:hover, .nav-menu a.active { background: var(--gold); color: var(--navy); font-weight: 700; }
+
+      /* Main Content */
+      .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+      .backup-card {
+        background: var(--white); border-radius: 20px; padding: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: center;
+      }
+
+      h1 { font-family: 'Cormorant Garamond', serif; color: var(--navy); margin-bottom: 10px; }
+      p { color: #666; margin-bottom: 40px; }
+
+      .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+      .action-box {
+        border: 2px dashed #ddd; padding: 40px; border-radius: 15px;
+        transition: 0.3s; cursor: pointer;
+      }
+      .action-box:hover { border-color: var(--gold); background: var(--cream); }
+      .action-box i { font-size: 3rem; color: var(--navy); margin-bottom: 20px; }
+      
+      .sidebar-logo { text-align: center; margin-bottom: 50px; }
+    .sidebar-logo i { font-size: 2.2rem; color: var(--gold); margin-bottom: 10px; }
+    .sidebar-logo h2 { font-family: 'Cormorant Garamond', serif; color: var(--white); letter-spacing: 2px; font-size: 1.5rem; }
+
+      .btn-execute {
+        background: var(--navy); color: white; padding: 12px 30px;
+        border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;
+      }
+      .btn-execute:hover { background: var(--gold); color: var(--navy); }
+      .sidebar-logo { text-align: center; margin-bottom: 50px; }
+    .sidebar-logo i { font-size: 2.2rem; color: var(--gold); margin-bottom: 10px; }
+    .sidebar-logo h2 { font-family: 'Cormorant Garamond', serif; color: var(--white); letter-spacing: 2px; font-size: 1.5rem; }
+
+      /* Hidden file input */
+      #fileInput { display: none; }
+
+      /* Toast notification */
+      #toast {
+        position: fixed; bottom: 20px; right: 20px; background: var(--navy);
+        color: white; padding: 15px 25px; border-radius: 8px; border-left: 5px solid var(--gold);
+        display: none; animation: slideUp 0.5s;
+      }
+      @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+  <div id="toast">Action completed successfully!</div>
+    <nav class="nav-menu">
+        <h3>VEMU ADMIN</h3>
+        <a href="adminstrator.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="users.html"><i class="fas fa-users-cog"></i> Manage Users</a>
+        <a href="reports.html"><i class="fas fa-file-invoice"></i> Reports</a>
+        <a href="backup.html" class="active"><i class="fas fa-hdd"></i> Backup & Recovery</a>
+        <a href="login.html" style="margin-top:50px; color: #f92810;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="backup-card">
+      <h1>Data <em>Management</em></h1>
+      <p>Export your user database or restore from a previous backup file.</p>
+
+      <div class="action-grid">
+        <div class="action-box" onclick="downloadBackup()">
+          <i class="fas fa-download"></i>
+          <h3>Backup Data</h3>
+          <p>Download all user records as a .json file</p>
+          <button class="btn-execute">Download JSON</button>
+        </div>
+
+        <div class="action-box" onclick="document.getElementById('fileInput').click()">
+          <i class="fas fa-upload"></i>
+          <h3>Restore Data</h3>
+          <p>Upload a .json file to restore users</p>
+          <input type="file" id="fileInput" accept=".json" onchange="handleRestore(event)">
+          <button class="btn-execute">Upload File</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showNotification(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // 1. BACKUP LOGIC (Download)
+    function downloadBackup() {
+        const userData = localStorage.getItem("vemuUsers"); // Uses the same key as your users page
+        
+        if (!userData || userData === "[]") {
+            showNotification("No data found to backup!");
+            return;
+        }
+
+        const blob = new Blob([userData], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        
+        const timestamp = new Date().toISOString().split('T')[0];
+        a.href = url;
+        a.download = `Vemu_Library_Backup_${timestamp}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        showNotification("Backup downloaded successfully!");
+    }
+
+    // 2. RESTORE LOGIC (Upload)
+    function handleRestore(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // Validate if it's an array
+                if (Array.isArray(importedData)) {
+                    localStorage.setItem("vemuUsers", JSON.stringify(importedData));
+                    showNotification("Data restored successfully!");
+                    // Clear file input
+                    event.target.value = '';
+                } else {
+                    alert("Invalid file format. Please upload a valid Vemu backup file.");
+                }
+            } catch (err) {
+                alert("Error reading file. Make sure it's a valid JSON.");
+            }
+        };
+        reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
