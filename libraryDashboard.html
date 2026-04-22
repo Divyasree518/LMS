@@ -1,77 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vemu Library | Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --navy: #1C2B4A; --gold: #C8973A; --cream: #FAF7F2; 
-            --white: #FFFFFF; --success: #27ae60; --danger: #e74c3c;
+            --navy: #1C2B4A;
+            --gold: #C8973A;
+            --cream: #FAF7F2;
+            --white: #FFFFFF;
+            --success: #27ae60;
+            --danger: #e74c3c;
             --gray: #718096;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-       body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-}
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
 
         /* Navigation */
-        .sidebar { width: 260px; background: var(--navy); color: white; padding: 30px 20px; display: flex; flex-direction: column; }
-        .sidebar h2 { font-family: 'Cormorant Garamond'; color: var(--gold); text-align: center; margin-bottom: 40px; letter-spacing: 1px; }
-        .nav-menu a {
-            display: flex; align-items: center; gap: 12px; color: #cbd5e0;
-            text-decoration: none; padding: 14px 18px; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; cursor: pointer;
+        .sidebar {
+            width: 260px;
+            background: var(--navy);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
         }
-        .nav-menu a.active { background: var(--gold); color: var(--navy); font-weight: bold; }
-        .nav-menu a:hover:not(.active) { background: rgba(255,255,255,0.05); }
+
+        .sidebar h2 {
+            font-family: 'Cormorant Garamond';
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e0;
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-menu a.active {
+            background: var(--gold);
+            color: var(--navy);
+            font-weight: bold;
+        }
+
+        .nav-menu a:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+        }
 
         /* Content */
         .main-content {
-    flex: 1;
-    padding: 40px;
-    overflow-y: auto;
-    height: 100vh;
-}
-        .section { display: none; animation: fadeIn 0.4s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            height: 100vh;
+        }
 
-        .card { background: var(--white); border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #eee; }
-        h1 { font-family: 'Cormorant Garamond'; color: var(--navy); margin-bottom: 20px; font-size: 2rem; border-left: 4px solid var(--gold); padding-left: 15px; }
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            border: 1px solid #eee;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond';
+            color: var(--navy);
+            margin-bottom: 20px;
+            font-size: 2rem;
+            border-left: 4px solid var(--gold);
+            padding-left: 15px;
+        }
 
         /* Forms */
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--navy); font-size: 0.85rem; }
-        input, select { padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; width: 100%; margin-bottom: 20px; font-family: inherit; }
-        .btn { padding: 14px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; font-size: 1rem; }
-        .btn-primary { background: var(--navy); color: white; margin-bottom: 20px;}
-        .btn-primary:hover { background: var(--gold); color: var(--navy); }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--navy);
+            font-size: 0.85rem;
+        }
+
+        input,
+        select {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            width: 100%;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--navy);
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold);
+            color: var(--navy);
+        }
 
         /* Calculator UI */
-        .fine-box { background: #f8fafc; border-radius: 15px; padding: 25px; border: 2px solid #edf2f7; text-align: center; margin-top: 10px; }
-        .amount-circle { width: 120px; height: 120px; border-radius: 50%; margin: 15px auto; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; border: 5px solid; }
-        .overdue { color: var(--danger); border-color: var(--danger); background: #fff5f5; }
-        .ontime { color: var(--success); border-color: var(--success); background: #f0fff4; }
+        .fine-box {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #edf2f7;
+            text-align: center;
+            margin-top: 10px;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 15px; background: #f8fafc; color: var(--navy); border-bottom: 2px solid var(--gold); }
-        td { padding: 15px; border-bottom: 1px solid #edf2f7; color: #4a5568; }
-        .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; }
-        .b-avail { background: #d1fae5; color: #065f46; }
-        .b-issued { background: #fee2e2; color: #991b1b; }
+        .amount-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            border: 5px solid;
+        }
+
+        .overdue {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: #fff5f5;
+        }
+
+        .ontime {
+            color: var(--success);
+            border-color: var(--success);
+            background: #f0fff4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background: #f8fafc;
+            color: var(--navy);
+            border-bottom: 2px solid var(--gold);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #edf2f7;
+            color: #4a5568;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .b-avail {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .b-issued {
+            background: #fee2e2;
+            color: #991b1b;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="sidebar">
-        <h2>VEMU ADMIN</h2>
+        <h2>VEMU Library</h2>
         <nav class="nav-menu">
-            <a onclick="showSection('inventory')" class="active" id="link-inventory"><i class="fas fa-list"></i> Inventory</a>
+            <a onclick="showSection('inventory')" class="active" id="link-inventory"><i class="fas fa-list"></i>
+                Inventory</a>
             <a onclick="showSection('circulation')" id="link-circulation"><i class="fas fa-sync"></i> Issue/Return</a>
             <a onclick="showSection('calc')" id="link-calc"><i class="fas fa-calculator"></i> Fine Calculator</a>
             <a onclick="showSection('logs')" id="link-logs"><i class="fas fa-history"></i> Activity Logs</a>
@@ -80,242 +250,259 @@
 
     <div class="main-content">
 
-    <!-- ✅ ADD BOOK SECTION AT TOP -->
-    <div class="card">
-        <h1>Add <em>New Book</em></h1>
+        <!-- ✅ ADD BOOK SECTION AT TOP -->
+        <div class="card">
+            <h1>Add <em>New Book</em></h1>
 
-        <form id="bookForm" style="display:flex; gap:15px; flex-wrap:wrap; align-items:end;">
-            
-            <div style="flex:1;">
-                <label>Title</label>
-                <input type="text" id="bookTitle" required>
-            </div>
+            <form id="bookForm" style="display:flex; gap:15px; flex-wrap:wrap; align-items:end;">
 
-            <div style="flex:1;">
-                <label>Author</label>
-                <input type="text" id="bookAuthor" required>
-            </div>
+                <div style="flex:1;">
+                    <label>Title</label>
+                    <input type="text" id="bookTitle" required>
+                </div>
 
-            <div style="flex:1;">
-                <label>Category</label>
-                <input type="text" id="bookCategory" required>
-            </div>
+                <div style="flex:1;">
+                    <label>Author</label>
+                    <input type="text" id="bookAuthor" required>
+                </div>
 
-            <div style="width:120px;">
-                <label>Qty</label>
-                <input type="number" id="bookQty" min="1" required>
-            </div>
+                <div style="flex:1;">
+                    <label>Category</label>
+                    <input type="text" id="bookCategory" required>
+                </div>
 
-            <button type="submit" class="btn btn-primary" style="width:150px;">Add</button>
-        </form>
-    </div>
-    <div class="main-content">
-        
-        <div id="inventory" class="section active">
-            <div class="card">
-                <h1>Book <em>Catalog</em></h1>
-                <table>
-                    <thead><tr><th>ID</th><th>Book Title</th><th>Author</th><th>Status</th></tr></thead>
-                    <tbody id="inventoryBody"></tbody>
-                </table>
-            </div>
+                <div style="width:120px;">
+                    <label>Quantity</label>
+                    <input type="number" id="bookQty" min="1" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:150px;">Add</button>
+            </form>
         </div>
+        <div class="main-content">
 
-        <div id="circulation" class="section">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div id="inventory" class="section active">
                 <div class="card">
-                    <h1>Issue <em>System</em></h1>
-                    <label>Borrower ID</label>
-                    <input type="text" id="memberId" placeholder="Enter Student/Faculty ID">
-                    <label>Select Book</label>
-                    <select id="issueSelect"></select>
-                    <button class="btn btn-primary" onclick="handleIssue()">Issue Book</button>
+                    <h1>Book <em>Catalog</em></h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Book Title</th>
+                                <th>Author</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryBody"></tbody>
+                    </table>
                 </div>
+            </div>
+
+            <div id="circulation" class="section">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="card">
+                        <h1>Issue <em>System</em></h1>
+                        <label>Borrower ID</label>
+                        <input type="text" id="memberId" placeholder="Enter Student/Faculty ID">
+                        <label>Select Book</label>
+                        <select id="issueSelect"></select>
+                        <button class="btn btn-primary" onclick="handleIssue()">Issue Book</button>
+                    </div>
+                    <div class="card">
+                        <h1>Return <em>System</em></h1>
+                        <label>Select Book to Return</label>
+                        <select id="returnSelect"></select>
+                        <button class="btn btn-primary" onclick="handleReturn()">Confirm Return</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="calc" class="section">
+                <div class="card" style="max-width: 500px; margin: 0 auto;">
+                    <h1>Fine <em>Calculator</em></h1>
+                    <p style="font-size: 0.9rem; color: var(--gray); margin-bottom: 20px;">Current Rate: <strong>₹1.00 /
+                            day</strong></p>
+
+                    <label>Due Date</label>
+                    <input type="date" id="dueDate">
+
+                    <label>Actual Return Date</label>
+                    <input type="date" id="returnDate">
+
+                    <button class="btn btn-primary" onclick="calculateFine()">Calculate Charges</button>
+
+                    <div id="fineResult" style="display:none;" class="fine-box">
+                        <h3 id="fineStatusText">Calculation Result</h3>
+                        <div id="fineCircle" class="amount-circle">₹0</div>
+                        <p id="dayCount" style="font-weight: bold;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="logs" class="section">
                 <div class="card">
-                    <h1>Return <em>System</em></h1>
-                    <label>Select Book to Return</label>
-                    <select id="returnSelect"></select>
-                    <button class="btn btn-primary" onclick="handleReturn()">Confirm Return</button>
+                    <h1>Transaction <em>History</em></h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Member</th>
+                                <th>Book</th>
+                                <th>Action</th>
+                                <th>Fine</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logBody"></tbody>
+                    </table>
                 </div>
             </div>
+
         </div>
 
-        <div id="calc" class="section">
-            <div class="card" style="max-width: 500px; margin: 0 auto;">
-                <h1>Fine <em>Calculator</em></h1>
-                <p style="font-size: 0.9rem; color: var(--gray); margin-bottom: 20px;">Current Rate: <strong>₹1.00 / day</strong></p>
-                
-                <label>Due Date</label>
-                <input type="date" id="dueDate">
-                
-                <label>Actual Return Date</label>
-                <input type="date" id="returnDate">
-                
-                <button class="btn btn-primary" onclick="calculateFine()">Calculate Charges</button>
+        <script src="js/api-service.js"></script>
+        <script>
+            const FINE_PER_DAY = 1;
+            let books = [];
+            let logs = [];
 
-                <div id="fineResult" style="display:none;" class="fine-box">
-                    <h3 id="fineStatusText">Calculation Result</h3>
-                    <div id="fineCircle" class="amount-circle">₹0</div>
-                    <p id="dayCount" style="font-weight: bold;"></p>
-                </div>
-            </div>
-        </div>
-
-        <div id="logs" class="section">
-            <div class="card">
-                <h1>Transaction <em>History</em></h1>
-                <table>
-                    <thead><tr><th>Date</th><th>Member</th><th>Book</th><th>Action</th><th>Fine</th></tr></thead>
-                    <tbody id="logBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-
-    <script src="js/api-service.js"></script>
-    <script>
-        const FINE_PER_DAY = 1;
-        let books = [];
-        let logs = [];
-
-        async function init() {
-            if (!apiService.auth.isAuthenticated()) {
-                window.location.href = 'login.html';
-                return;
+            async function init() {
+                if (!apiService.auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                await loadData();
+                showSection('inventory');
             }
-            await loadData();
-            showSection('inventory');
-        }
 
-        async function loadData() {
-            try {
-                const booksResult = await apiService.books.getAll();
-                books = booksResult.data;
-                
-                // For logs, we can fetch borrow records or similar
-                // For now, let's keep it empty or fetch from a dedicated logs endpoint if exists
-                // The backend has reportRoutes, maybe that?
-                // For simplicity, we'll just show the inventory for now.
-                renderUI();
-            } catch (error) {
-                console.error("Failed to load data:", error);
+            async function loadData() {
+                try {
+                    const booksResult = await apiService.books.getAll();
+                    books = booksResult.data;
+
+                    // For logs, we can fetch borrow records or similar
+                    // For now, let's keep it empty or fetch from a dedicated logs endpoint if exists
+                    // The backend has reportRoutes, maybe that?
+                    // For simplicity, we'll just show the inventory for now.
+                    renderUI();
+                } catch (error) {
+                    console.error("Failed to load data:", error);
+                }
             }
-        }
 
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
-            const section = document.getElementById(id);
-            if (section) section.classList.add('active');
-            const link = document.getElementById('link-' + id);
-            if (link) link.classList.add('active');
-        }
+            function showSection(id) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
+                const section = document.getElementById(id);
+                if (section) section.classList.add('active');
+                const link = document.getElementById('link-' + id);
+                if (link) link.classList.add('active');
+            }
 
-        function renderUI() {
-            // Inventory Table
-            document.getElementById('inventoryBody').innerHTML = books.map(b => `
+            function renderUI() {
+                // Inventory Table
+                document.getElementById('inventoryBody').innerHTML = books.map(b => `
                 <tr>
                     <td>${b._id.substring(0, 8)}...</td><td>${b.title}</td><td>${b.author}</td>
                     <td><span class="badge ${b.available > 0 ? 'b-avail' : 'b-issued'}">${b.available > 0 ? 'Available' : 'Issued'}</span></td>
                 </tr>
             `).join('');
 
-            // Dropdowns
-            const iSel = document.getElementById('issueSelect');
-            const rSel = document.getElementById('returnSelect');
-            if (iSel) iSel.innerHTML = books.filter(b => b.available > 0).map(b => `<option value="${b._id}">${b.title}</option>`).join('');
-            if (rSel) rSel.innerHTML = books.filter(b => b.available < b.total).map(b => `<option value="${b._id}">${b.title}</option>`).join('');
+                // Dropdowns
+                const iSel = document.getElementById('issueSelect');
+                const rSel = document.getElementById('returnSelect');
+                if (iSel) iSel.innerHTML = books.filter(b => b.available > 0).map(b => `<option value="${b._id}">${b.title}</option>`).join('');
+                if (rSel) rSel.innerHTML = books.filter(b => b.available < b.total).map(b => `<option value="${b._id}">${b.title}</option>`).join('');
 
-            // History
-            document.getElementById('logBody').innerHTML = logs.map(l => `
+                // History
+                document.getElementById('logBody').innerHTML = logs.map(l => `
                 <tr><td>${l.date}</td><td>${l.member}</td><td>${l.title}</td><td>${l.type}</td><td>${l.fine}</td></tr>
             `).reverse().join('');
-        }
-
-        async function handleIssue() {
-            const mid = document.getElementById('memberId').value;
-            const bid = document.getElementById('issueSelect').value;
-            if(!mid || !bid) return alert("Fill all fields");
-
-            try {
-                await apiService.books.borrow(bid, mid);
-                alert("Book issued successfully!");
-                await loadData();
-            } catch (error) {
-                alert("Error: " + error.message);
             }
-        }
 
-        async function handleReturn() {
-            const bid = document.getElementById('returnSelect').value;
-            if(!bid) return;
-            
-            try {
-                // In a real app, we'd need the borrowRecordId. 
-                // For this demo, let's assume the backend can handle it by bookId if we simplify.
-                // But the controller needs borrowRecordId. 
-                // Let's just alert for now or implement a better way to find the record.
-                alert("In a full implementation, you would select the specific borrow record to return.");
-            } catch (error) {
-                alert("Error: " + error.message);
+            async function handleIssue() {
+                const mid = document.getElementById('memberId').value;
+                const bid = document.getElementById('issueSelect').value;
+                if (!mid || !bid) return alert("Fill all fields");
+
+                try {
+                    await apiService.books.borrow(bid, mid);
+                    alert("Book issued successfully!");
+                    await loadData();
+                } catch (error) {
+                    alert("Error: " + error.message);
+                }
             }
-        }
 
-        function calculateFine() {
-            const d1 = new Date(document.getElementById('dueDate').value);
-            const d2 = new Date(document.getElementById('returnDate').value);
+            async function handleReturn() {
+                const bid = document.getElementById('returnSelect').value;
+                if (!bid) return;
 
-            if(isNaN(d1) || isNaN(d2)) return alert("Select valid dates");
-
-            const diff = d2 - d1;
-            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-            const fine = days > 0 ? days * FINE_PER_DAY : 0;
-
-            const resDiv = document.getElementById('fineResult');
-            const fCircle = document.getElementById('fineCircle');
-            const dCount = document.getElementById('dayCount');
-            const sText = document.getElementById('fineStatusText');
-
-            resDiv.style.display = 'block';
-            fCircle.innerText = `₹${fine}`;
-            
-            if(days > 0) {
-                fCircle.className = 'amount-circle overdue';
-                sText.innerText = "Overdue Charges";
-                dCount.innerText = `${days} Days Delay`;
-            } else {
-                fCircle.className = 'amount-circle ontime';
-                sText.innerText = "On Time / Early";
-                dCount.innerText = "No Fine Applicable";
+                try {
+                    // In a real app, we'd need the borrowRecordId. 
+                    // For this demo, let's assume the backend can handle it by bookId if we simplify.
+                    // But the controller needs borrowRecordId. 
+                    // Let's just alert for now or implement a better way to find the record.
+                    alert("In a full implementation, you would select the specific borrow record to return.");
+                } catch (error) {
+                    alert("Error: " + error.message);
+                }
             }
-        }
 
-        const bookForm = document.getElementById("bookForm");
-        bookForm.addEventListener("submit", async function(e) {
-            e.preventDefault();
+            function calculateFine() {
+                const d1 = new Date(document.getElementById('dueDate').value);
+                const d2 = new Date(document.getElementById('returnDate').value);
 
-            const title = document.getElementById("bookTitle").value;
-            const author = document.getElementById("bookAuthor").value;
-            const category = document.getElementById("bookCategory").value;
-            const total = parseInt(document.getElementById("bookQty").value);
+                if (isNaN(d1) || isNaN(d2)) return alert("Select valid dates");
 
-            try {
-                await apiService.books.create({
-                    title,
-                    author,
-                    category,
-                    total
-                });
-                alert("Book added successfully!");
-                bookForm.reset();
-                await loadData();
-            } catch (error) {
-                alert("Error: " + error.message);
+                const diff = d2 - d1;
+                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                const fine = days > 0 ? days * FINE_PER_DAY : 0;
+
+                const resDiv = document.getElementById('fineResult');
+                const fCircle = document.getElementById('fineCircle');
+                const dCount = document.getElementById('dayCount');
+                const sText = document.getElementById('fineStatusText');
+
+                resDiv.style.display = 'block';
+                fCircle.innerText = `₹${fine}`;
+
+                if (days > 0) {
+                    fCircle.className = 'amount-circle overdue';
+                    sText.innerText = "Overdue Charges";
+                    dCount.innerText = `${days} Days Delay`;
+                } else {
+                    fCircle.className = 'amount-circle ontime';
+                    sText.innerText = "On Time / Early";
+                    dCount.innerText = "No Fine Applicable";
+                }
             }
-        });
 
-        window.onload = init;
-    </script>
+            const bookForm = document.getElementById("bookForm");
+            bookForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const title = document.getElementById("bookTitle").value;
+                const author = document.getElementById("bookAuthor").value;
+                const category = document.getElementById("bookCategory").value;
+                const total = parseInt(document.getElementById("bookQty").value);
+
+                try {
+                    await apiService.books.create({
+                        title,
+                        author,
+                        category,
+                        total
+                    });
+                    alert("Book added successfully!");
+                    bookForm.reset();
+                    await loadData();
+                } catch (error) {
+                    alert("Error: " + error.message);
+                }
+            });
+
+            window.onload = init;
+        </script>
 </body>
+
 </html>

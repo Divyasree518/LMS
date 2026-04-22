@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -395,19 +396,22 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="navbar-brand">Vemu Library — Faculty Recommendations</div>
         <div class="nav-links">
             <button type="button" class="nav-btn" onclick="window.location.href='faculty.html'">Catalog</button>
-            <button type="button" class="nav-btn" onclick="window.location.href='react-frontend/public/faculty.html'">Recommendation System</button>
+            <button type="button" class="nav-btn"
+                onclick="window.location.href='react-frontend/public/faculty.html'">Recommendation System</button>
             <button type="button" class="nav-btn primary" onclick="apiService.auth.logout()">Logout</button>
         </div>
     </nav>
 
     <main class="main">
         <h1 class="page-title">Book recommendation system</h1>
-        <p class="page-sub">Suggest titles for the library collection. Your list is saved on this device until you clear it.</p>
+        <p class="page-sub">Suggest titles for the library collection. Your list is saved on this device until you clear
+            it.</p>
 
         <section class="card" aria-labelledby="form-heading">
             <h2 id="form-heading">Submit a recommendation</h2>
@@ -415,11 +419,13 @@
                 <div class="form-grid two">
                     <div>
                         <label for="bookTitle">Book title</label>
-                        <input type="text" id="bookTitle" name="bookTitle" required autocomplete="off" placeholder="e.g., Introduction to Algorithms">
+                        <input type="text" id="bookTitle" name="bookTitle" required autocomplete="off"
+                            placeholder="e.g., Introduction to Algorithms">
                     </div>
                     <div>
                         <label for="authorName">Author</label>
-                        <input type="text" id="authorName" name="authorName" required autocomplete="off" placeholder="Author name">
+                        <input type="text" id="authorName" name="authorName" required autocomplete="off"
+                            placeholder="Author name">
                     </div>
                 </div>
                 <div>
@@ -442,7 +448,8 @@
                 </div>
                 <div>
                     <label for="description">Description or reason</label>
-                    <textarea id="description" name="description" required placeholder="Why should the library acquire this book?"></textarea>
+                    <textarea id="description" name="description" required
+                        placeholder="Why should the library acquire this book?"></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-submit" id="submitBtn">Submit recommendation</button>
@@ -718,4 +725,5 @@
         })();
     </script>
 </body>
+
 </html>
