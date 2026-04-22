@@ -1,5 +1,7 @@
 const Book = require('../models/Book');
 const BorrowRecord = require('../models/BorrowRecord');
+const User = require('../models/User');
+const mongoose = require('mongoose');
 
 const bookController = {
   getAllBooks: async (req, res) => {
@@ -106,6 +108,19 @@ const bookController = {
         return res.status(400).json({ error: 'User ID is required' });
       }
 
+      // Find the actual user by ID, username, or email
+      const user = await User.findOne({
+        $or: [
+          { _id: mongoose.Types.ObjectId.isValid(userId) ? userId : undefined },
+          { username: userId },
+          { email: userId.toLowerCase() }
+        ].filter(q => q._id !== undefined || q.username || q.email)
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found with provided ID/Email/Username' });
+      }
+
       const book = await Book.findById(bookId);
       if (!book) {
         return res.status(404).json({ error: 'Book not found' });
@@ -115,10 +130,10 @@ const bookController = {
         return res.status(400).json({ error: 'Book not available' });
       }
 
-      // Create borrow record
+      // Create borrow record with the actual user._id
       const borrowRecord = new BorrowRecord({
         bookId,
-        userId,
+        userId: user._id,
         dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
       });
 
@@ -177,7 +192,20 @@ const bookController = {
   getBorrowedByUser: async (req, res) => {
     try {
       const { userId } = req.params;
-      const records = await BorrowRecord.find({ userId, status: 'borrowed' }).populate('bookId');
+
+      // Resolve actual userId if an email/username was provided
+      let actualUserId = userId;
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        const user = await User.findOne({
+          $or: [{ username: userId }, { email: userId.toLowerCase() }]
+        });
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+        actualUserId = user._id;
+      }
+
+      const records = await BorrowRecord.find({ userId: actualUserId, status: 'borrowed' }).populate('bookId');
       res.json({ success: true, data: records });
     } catch (error) {
       res.status(500).json({ error: error.message });
