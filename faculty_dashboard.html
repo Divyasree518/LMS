@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vemu Library | Faculty Book Recommendations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0a2540;
+            --gold: #c9a03d;
+            --bg: #f3f4f6;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --card: #ffffff;
+            --success: #059669;
+            --danger: #b91c1c;
+            --radius: 12px;
+            --shadow: 0 4px 14px rgba(10, 37, 64, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--navy);
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 2px solid var(--gold);
+            color: #fff;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn.primary {
+            background: var(--gold);
+            color: var(--navy);
+            border-color: var(--gold);
+            font-weight: 600;
+        }
+
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 1.25rem 1rem 2.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            color: var(--navy);
+        }
+
+        .page-sub {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .form-grid.two {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 0.35rem;
+        }
+
+        input[type="text"],
+        input[type="search"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.12);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.7rem 1.25rem;
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-submit {
+            background: var(--navy);
+            color: var(--gold);
+            width: 100%;
+        }
+
+        @media (min-width: 480px) {
+            .btn-submit {
+                width: auto;
+            }
+        }
+
+        .btn-submit:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 560px) {
+            .toolbar {
+                flex-direction: row;
+                align-items: flex-end;
+                flex-wrap: wrap;
+            }
+
+            .toolbar .field-grow {
+                flex: 1;
+                min-width: 180px;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 600px) {
+            .recommendations-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .rec-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.1rem;
+            background: #fafbfc;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .rec-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .rec-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--navy);
+            line-height: 1.3;
+        }
+
+        .rec-badge {
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            background: rgba(201, 160, 61, 0.2);
+            color: var(--navy);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .rec-meta {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        .rec-meta strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .rec-desc {
+            font-size: 0.875rem;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .rec-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: auto;
+            padding-top: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.45rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--navy);
+        }
+
+        .btn-sm:hover {
+            background: var(--bg);
+        }
+
+        .btn-sm.danger {
+            border-color: #fecaca;
+            color: var(--danger);
+            background: #fff5f5;
+        }
+
+        .btn-sm.danger:hover {
+            background: #fee2e2;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 37, 64, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 100;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--navy);
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120%);
+            background: var(--navy);
+            color: #fff;
+            padding: 0.65rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow);
+            z-index: 200;
+            transition: transform 0.25s ease;
+            max-width: calc(100% - 2rem);
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Vemu Library — Faculty Recommendations</div>
+        <div class="nav-links">
+            <button type="button" class="nav-btn" onclick="window.location.href='faculty_dashboard.html'">Catalog</button>
+            <button type="button" class="nav-btn primary" onclick="apiService.auth.logout()">Logout</button>
+        </div>
+    </nav>
+
+    <main class="main">
+        <h1 class="page-title">Book recommendation system</h1>
+        <p class="page-sub">Suggest titles for the library collection. Your list is saved on this device until you clear it.</p>
+
+        <section class="card" aria-labelledby="form-heading">
+            <h2 id="form-heading">Submit a recommendation</h2>
+            <form id="recommendationForm" class="form-grid" novalidate>
+                <div class="form-grid two">
+                    <div>
+                        <label for="bookTitle">Book title</label>
+                        <input type="text" id="bookTitle" name="bookTitle" required autocomplete="off" placeholder="e.g., Introduction to Algorithms">
+                    </div>
+                    <div>
+                        <label for="authorName">Author</label>
+                        <input type="text" id="authorName" name="authorName" required autocomplete="off" placeholder="Author name">
+                    </div>
+                </div>
+                <div>
+                    <label for="department">Subject / department</label>
+                    <select id="department" name="department" required>
+                        <option value="">Select department</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="MBA">MBA</option>
+                        <option value="Science">Science</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="English">English</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="description">Description or reason</label>
+                    <textarea id="description" name="description" required placeholder="Why should the library acquire this book?"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-submit" id="submitBtn">Submit recommendation</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="card" aria-labelledby="filter-heading">
+            <h2 id="filter-heading">Browse recommendations</h2>
+            <div class="toolbar">
+                <div class="field-grow">
+                    <label for="searchInput">Search by title</label>
+                    <input type="search" id="searchInput" placeholder="Type to filter…" autocomplete="off">
+                </div>
+                <div>
+                    <label for="filterDepartment">Filter by department</label>
+                    <select id="filterDepartment">
+                        <option value="">All departments</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="MBA">MBA</option>
+                        <option value="Science">Science</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="English">English</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="list-heading">
+            <h2 id="list-heading">Recommended books</h2>
+            <div id="recommendationsList" class="recommendations-grid" role="list"></div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+        <div class="modal">
+            <h3 id="editModalTitle">Edit recommendation</h3>
+            <form id="editForm" class="form-grid">
+                <input type="hidden" id="editId">
+                <div class="form-grid two">
+                    <div>
+                        <label for="editTitle">Book title</label>
+                        <input type="text" id="editTitle" required>
+                    </div>
+                    <div>
+                        <label for="editAuthor">Author</label>
+                        <input type="text" id="editAuthor" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="editDepartment">Subject / department</label>
+                    <input type="text" id="editDepartment" required>
+                </div>
+                <div>
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-submit">Save changes</button>
+                    <button type="button" class="btn btn-secondary" id="editCancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="js/api-service.js"></script>
+    <script>
+        (function () {
+            const STORAGE_KEY = 'vemu_faculty_book_recommendations_v1';
+
+            const departmentOptions = [
+                'CSE', 'ECE', 'EEE', 'Mechanical', 'Civil', 'MBA',
+                'Science', 'Mathematics', 'Physics', 'Chemistry', 'English', 'Other'
+            ];
+
+            let recommendations = [];
+
+            const form = document.getElementById('recommendationForm');
+            const listEl = document.getElementById('recommendationsList');
+            const searchInput = document.getElementById('searchInput');
+            const filterDepartment = document.getElementById('filterDepartment');
+            const toastEl = document.getElementById('toast');
+            const editModal = document.getElementById('editModal');
+            const editForm = document.getElementById('editForm');
+            const editDepartment = document.getElementById('editDepartment');
+
+            function loadFromStorage() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return [];
+                    const parsed = JSON.parse(raw);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch {
+                    return [];
+                }
+            }
+
+            function saveToStorage() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(recommendations));
+            }
+
+            function showToast(message, isSuccess) {
+                toastEl.textContent = message;
+                toastEl.className = 'toast show' + (isSuccess ? ' success' : '');
+                clearTimeout(showToast._t);
+                showToast._t = setTimeout(function () {
+                    toastEl.classList.remove('show');
+                }, 2800);
+            }
+
+            function escapeHtml(str) {
+                if (str == null) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function getFiltered() {
+                const q = (searchInput.value || '').trim().toLowerCase();
+                const dept = filterDepartment.value;
+                return recommendations.filter(function (r) {
+                    const titleMatch = !q || (r.title && r.title.toLowerCase().includes(q));
+                    const deptMatch = !dept || r.department === dept;
+                    return titleMatch && deptMatch;
+                }).sort(function (a, b) {
+                    return (b.createdAt || 0) - (a.createdAt || 0);
+                });
+            }
+
+            function renderList() {
+                const items = getFiltered();
+                if (items.length === 0) {
+                    listEl.innerHTML = '<p class="empty-state" role="status">' +
+                        (recommendations.length === 0
+                            ? 'No recommendations yet. Use the form above to add your first one.'
+                            : 'No entries match your search or filter.') +
+                        '</p>';
+                    return;
+                }
+
+                listEl.innerHTML = items.map(function (r) {
+                    return (
+                        '<article class="rec-card" role="listitem" data-id="' + escapeHtml(r.id) + '">' +
+                        '<div class="rec-card-header">' +
+                        '<div class="rec-title">' + escapeHtml(r.title) + '</div>' +
+                        '<span class="rec-badge">' + escapeHtml(r.department) + '</span>' +
+                        '</div>' +
+                        '<div class="rec-meta"><strong>Author:</strong> ' + escapeHtml(r.author) + '</div>' +
+                        '<div class="rec-desc">' + escapeHtml(r.description) + '</div>' +
+                        '<div class="rec-actions">' +
+                        '<button type="button" class="btn-sm" data-action="edit" data-id="' + escapeHtml(r.id) + '">Edit</button>' +
+                        '<button type="button" class="btn-sm danger" data-action="delete" data-id="' + escapeHtml(r.id) + '">Delete</button>' +
+                        '</div>' +
+                        '</article>'
+                    );
+                }).join('');
+            }
+
+            function fillEditDepartmentSelect(selected) {
+                editDepartment.innerHTML = departmentOptions.map(function (d) {
+                    return '<option value="' + escapeHtml(d) + '"' + (d === selected ? ' selected' : '') + '>' + escapeHtml(d) + '</option>';
+                }).join('');
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const title = document.getElementById('bookTitle').value.trim();
+                const author = document.getElementById('authorName').value.trim();
+                const department = document.getElementById('department').value;
+                const description = document.getElementById('description').value.trim();
+
+                if (!title || !author || !department || !description) {
+                    showToast('Please fill in all fields.', false);
+                    return;
+                }
+
+                recommendations.push({
+                    id: 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9),
+                    title: title,
+                    author: author,
+                    department: department,
+                    description: description,
+                    createdAt: Date.now()
+                });
+                saveToStorage();
+                form.reset();
+                renderList();
+                showToast('Recommendation added.', true);
+            });
+
+            searchInput.addEventListener('input', renderList);
+            filterDepartment.addEventListener('change', renderList);
+
+            listEl.addEventListener('click', function (e) {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const id = btn.getAttribute('data-id');
+                const action = btn.getAttribute('data-action');
+                const rec = recommendations.find(function (r) { return r.id === id; });
+                if (!rec) return;
+
+                if (action === 'delete') {
+                    if (!confirm('Remove this recommendation from your list?')) return;
+                    recommendations = recommendations.filter(function (r) { return r.id !== id; });
+                    saveToStorage();
+                    renderList();
+                    showToast('Recommendation removed.', true);
+                }
+
+                if (action === 'edit') {
+                    document.getElementById('editId').value = rec.id;
+                    document.getElementById('editTitle').value = rec.title;
+                    document.getElementById('editAuthor').value = rec.author;
+                    fillEditDepartmentSelect(rec.department);
+                    document.getElementById('editDescription').value = rec.description;
+                    editModal.classList.add('open');
+                }
+            });
+
+            document.getElementById('editCancel').addEventListener('click', function () {
+                editModal.classList.remove('open');
+            });
+
+            editModal.addEventListener('click', function (e) {
+                if (e.target === editModal) editModal.classList.remove('open');
+            });
+
+            editForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const id = document.getElementById('editId').value;
+                const title = document.getElementById('editTitle').value.trim();
+                const author = document.getElementById('editAuthor').value.trim();
+                const department = editDepartment.value;
+                const description = document.getElementById('editDescription').value.trim();
+                if (!title || !author || !department || !description) {
+                    showToast('Please complete all edit fields.', false);
+                    return;
+                }
+                const idx = recommendations.findIndex(function (r) { return r.id === id; });
+                if (idx === -1) return;
+                recommendations[idx] = Object.assign({}, recommendations[idx], {
+                    title: title,
+                    author: author,
+                    department: department,
+                    description: description
+                });
+                saveToStorage();
+                editModal.classList.remove('open');
+                renderList();
+                showToast('Recommendation updated.', true);
+            });
+
+            function init() {
+                if (!apiService.auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                recommendations = loadFromStorage();
+                fillEditDepartmentSelect('CSE');
+                renderList();
+            }
+
+            window.addEventListener('load', init);
+        })();
+    </script>
+</body>
+</html>

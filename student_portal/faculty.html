@@ -1,1347 +1,720 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Vemu Library Management System | Faculty Portal </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vemu Library | Faculty Book Recommendations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --navy: #0a2540;
+            --gold: #c9a03d;
+            --bg: #f3f4f6;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --card: #ffffff;
+            --success: #059669;
+            --danger: #b91c1c;
+            --radius: 12px;
+            --shadow: 0 4px 14px rgba(10, 37, 64, 0.08);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --navy: #0a2540;
-            --navy-dark: #051a2c;
-            --navy-light: #1a3a5c;
-            --gold: #c9a03d;
-            --gold-dark: #b28b2c;
-            --gold-light: #e6d5a8;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --success: #2e7d64;
-            --warning: #d97706;
-            --danger: #dc2626;
-            --info: #3b82f6;
-            --border: #e2e8f0;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--gray-50) 0%, #f1f5f9 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
             min-height: 100vh;
-            color: var(--gray-800);
         }
 
-        /* Navbar */
         .navbar {
             background: var(--navy);
-            padding: 1rem 2.5rem;
+            padding: 0.875rem 1.25rem;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            gap: 1rem;
             border-bottom: 2px solid var(--gold);
+            color: #fff;
         }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--gold);
-        }
-
-        .logo-text {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: white;
-            letter-spacing: -0.3px;
-        }
-
-        .logo-text span {
-            color: var(--gold);
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.05rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 0.25rem;
-            align-items: center;
             flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
         }
 
-        .nav-item {
+        .nav-btn {
             background: transparent;
-            border: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 0.5rem 1.2rem;
-            cursor: pointer;
-            color: rgba(255, 255, 255, 0.85);
-            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            padding: 0.45rem 0.9rem;
             border-radius: 8px;
-            position: relative;
-        }
-
-        .nav-item:hover {
-            color: white;
-            background: rgba(201, 160, 61, 0.15);
-        }
-
-        .nav-item.active {
-            background: var(--gold);
-            color: var(--navy);
-            font-weight: 600;
-        }
-
-        .notification-badge {
-            background: var(--danger);
-            color: white;
-            border-radius: 30px;
-            padding: 2px 8px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 6px;
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(201, 160, 61, 0.3);
-        }
-
-        .logout-btn:hover {
-            background: rgba(201, 160, 61, 0.2);
-            color: var(--gold);
-        }
-
-        /* Main Container */
-        .main-container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .page {
-            display: none;
-            animation: fadeUp 0.3s ease;
-        }
-
-        .active-page {
-            display: block;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Card */
-        .card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            padding: 1.8rem 2rem;
-            border: 1px solid var(--border);
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--gold-light);
-        }
-
-        .card-header h2 {
-            font-size: 1.35rem;
-            font-weight: 600;
-            color: var(--navy);
-        }
-
-        /* Search */
-        .search-wrapper {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 12px 20px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.9rem;
-            background: white;
-            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 0.875rem;
             font-family: inherit;
         }
 
-        .search-input:focus {
-            outline: none;
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn.primary {
+            background: var(--gold);
+            color: var(--navy);
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(201, 160, 61, 0.1);
-        }
-
-        .btn-primary {
-            background: var(--gold);
-            color: var(--navy);
-            border: none;
-            padding: 0 1.8rem;
-            border-radius: 12px;
             font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
         }
 
-        .btn-primary:hover {
-            background: var(--gold-dark);
-            transform: translateY(-1px);
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 1.25rem 1rem 2.5rem;
         }
 
-        .btn-secondary {
-            background: var(--navy);
-            color: white;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 10px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.85rem;
-        }
-
-        .btn-secondary:hover {
-            background: var(--navy-light);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--navy);
-            padding: 0.5rem 1.2rem;
-            border-radius: 10px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-outline:hover {
-            background: var(--gold);
-            color: var(--navy);
-        }
-
-        /* Book Grid */
-        .book-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .book-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.25s;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-        }
-
-        .book-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1);
-            border-color: var(--gold-light);
-        }
-
-        .book-cover {
-            background: linear-gradient(135deg, #f8f5ed, #f0eadc);
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: 500;
-            color: var(--gold-dark);
-        }
-
-        .book-details {
-            padding: 1rem 1.2rem 1.2rem;
-        }
-
-        .book-title {
+        .page-title {
+            font-size: 1.5rem;
             font-weight: 700;
-            font-size: 1rem;
-            color: var(--navy);
-            margin-bottom: 4px;
-        }
-
-        .book-author {
-            color: var(--gray-500);
-            font-size: 0.75rem;
-            margin-bottom: 8px;
-        }
-
-        .availability {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin: 6px 0;
-        }
-
-        .avail-yes {
-            background: #e6f4ea;
-            color: var(--success);
-        }
-
-        .avail-no {
-            background: #fee9e6;
-            color: var(--danger);
-        }
-
-        .book-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .book-action {
-            flex: 1;
-            background: var(--navy);
-            color: var(--gold);
-            border: none;
-            padding: 8px;
-            border-radius: 10px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.8rem;
-        }
-
-        .book-action:hover:not(:disabled) {
-            background: var(--gold);
+            margin-bottom: 0.35rem;
             color: var(--navy);
         }
 
-        .book-action:disabled {
-            background: var(--gray-200);
-            color: var(--gray-500);
-            cursor: not-allowed;
-        }
-
-        .reserve-action {
-            background: var(--gold);
-            color: var(--navy);
-        }
-
-        .reserve-action:hover:not(:disabled) {
-            background: var(--gold-dark);
-        }
-
-        /* Tables */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table th {
-            text-align: left;
-            padding: 1rem 0.8rem;
-            background: var(--gray-50);
-            font-weight: 600;
-            color: var(--navy);
-            border-bottom: 2px solid var(--gold-light);
-            font-size: 0.85rem;
-        }
-
-        .data-table td {
-            padding: 1rem 0.8rem;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-            font-size: 0.85rem;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .status-borrowed {
-            background: #fef3c7;
-            color: var(--warning);
-        }
-
-        .status-reserved {
-            background: #e0e7ff;
-            color: var(--info);
-        }
-
-        .status-returned {
-            background: #e6f4ea;
-            color: var(--success);
-        }
-
-        /* Notification Items */
-        .notification-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .notification-item {
-            background: white;
-            border-radius: 16px;
-            padding: 1rem 1.2rem;
-            display: flex;
-            gap: 12px;
-            border-left: 4px solid;
-            transition: 0.2s;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .notification-icon {
-            font-size: 1.3rem;
-            min-width: 32px;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--navy);
+        .page-sub {
+            color: var(--muted);
             font-size: 0.9rem;
+            margin-bottom: 1.5rem;
         }
 
-        .notification-message {
-            font-size: 0.8rem;
-            color: var(--gray-600);
-        }
-
-        .notification-time {
-            font-size: 0.7rem;
-            color: var(--gray-500);
-            margin-top: 6px;
-        }
-
-        .btn-icon {
-            background: none;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            color: var(--gray-500);
-            padding: 0 4px;
-        }
-
-        .btn-icon:hover {
-            color: var(--danger);
-        }
-
-        /* Recommendation Form */
-        .recommend-form {
-            background: var(--gray-50);
+        .card {
+            background: var(--card);
             border-radius: 16px;
-            padding: 1.2rem;
-            margin-top: 0.5rem;
+            padding: 1.25rem 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border);
         }
 
-        .form-group {
+        .card h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--navy);
             margin-bottom: 1rem;
         }
 
-        .form-group label {
+        .form-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .form-grid.two {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        label {
             display: block;
             font-size: 0.8rem;
             font-weight: 500;
-            color: var(--navy);
-            margin-bottom: 0.3rem;
+            color: var(--muted);
+            margin-bottom: 0.35rem;
         }
 
-        .form-group input,
-        .form-group textarea {
+        input[type="text"],
+        input[type="search"],
+        select,
+        textarea {
             width: 100%;
-            padding: 10px 14px;
+            padding: 0.65rem 0.75rem;
             border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.85rem;
+            border-radius: var(--radius);
             font-family: inherit;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--gold);
-        }
-
-        /* Profile */
-        .profile-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .profile-field {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .field-label {
-            width: 140px;
-            font-weight: 600;
-            color: var(--navy);
-            font-size: 0.85rem;
-        }
-
-        .field-value {
-            flex: 1;
-            color: var(--gray-700);
-            font-size: 0.85rem;
-        }
-
-        .edit-input-field {
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.5rem 1rem;
-            width: 100%;
-            max-width: 320px;
-            font-family: inherit;
-            font-size: 0.85rem;
-        }
-
-        /* Modal Popup */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 37, 64, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .modal-container {
-            background: white;
-            border-radius: 28px;
-            max-width: 420px;
-            width: 90%;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
-            border-top: 5px solid var(--gold);
-            animation: slideScale 0.25s ease;
-        }
-
-        .modal-icon {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--navy);
-            margin: 0.5rem 0;
-        }
-
-        .modal-message {
-            color: var(--gray-600);
-            line-height: 1.5;
-            margin: 1rem 0;
             font-size: 0.95rem;
         }
 
-        .modal-detail {
-            background: #fef9ef;
-            padding: 0.8rem;
-            border-radius: 16px;
-            font-weight: 500;
-            color: var(--gold-dark);
-            margin: 1rem 0;
-            font-size: 0.85rem;
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.12);
         }
 
-        .modal-btn {
-            background: var(--gold);
-            color: var(--navy);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.7rem 1.25rem;
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 0.5rem;
+            border: none;
+        }
+
+        .btn-submit {
+            background: var(--navy);
+            color: var(--gold);
             width: 100%;
-            font-size: 0.9rem;
         }
 
-        .modal-btn:hover {
-            background: var(--gold-dark);
-        }
-
-        @keyframes slideScale {
-            from {
-                transform: scale(0.95);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
+        @media (min-width: 480px) {
+            .btn-submit {
+                width: auto;
             }
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+        .btn-submit:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 560px) {
+            .toolbar {
+                flex-direction: row;
+                align-items: flex-end;
+                flex-wrap: wrap;
             }
 
-            to {
-                opacity: 1;
+            .toolbar .field-grow {
+                flex: 1;
+                min-width: 180px;
             }
         }
 
-        .flex-between {
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 600px) {
+            .recommendations-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .rec-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.1rem;
+            background: #fafbfc;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .rec-card-header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .rec-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--navy);
+            line-height: 1.3;
+        }
+
+        .rec-badge {
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            background: rgba(201, 160, 61, 0.2);
+            color: var(--navy);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .rec-meta {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        .rec-meta strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .rec-desc {
+            font-size: 0.875rem;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .rec-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: auto;
+            padding-top: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.45rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--navy);
+        }
+
+        .btn-sm:hover {
+            background: var(--bg);
+        }
+
+        .btn-sm.danger {
+            border-color: #fecaca;
+            color: var(--danger);
+            background: #fff5f5;
+        }
+
+        .btn-sm.danger:hover {
+            background: #fee2e2;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 37, 64, 0.45);
+            display: none;
             align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 100;
         }
 
-        .text-muted {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            margin-top: 0.5rem;
+        .modal-overlay.open {
+            display: flex;
         }
 
-        .recommendations-list {
+        .modal {
+            background: var(--card);
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--navy);
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             margin-top: 1rem;
         }
 
-        .recommend-item {
-            background: var(--gray-50);
-            border-radius: 12px;
-            padding: 0.8rem;
-            margin-bottom: 0.5rem;
-            border-left: 3px solid var(--gold);
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
         }
 
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 0.8rem 1.2rem;
-            }
+        .toast {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120%);
+            background: var(--navy);
+            color: #fff;
+            padding: 0.65rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow);
+            z-index: 200;
+            transition: transform 0.25s ease;
+            max-width: calc(100% - 2rem);
+            text-align: center;
+        }
 
-            .main-container {
-                padding: 0 1rem;
-            }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
 
-            .card {
-                padding: 1.2rem;
-            }
-
-            .field-label {
-                width: 100%;
-                margin-bottom: 6px;
-            }
-
-            .book-actions {
-                flex-direction: column;
-            }
+        .toast.success {
+            background: var(--success);
         }
     </style>
 </head>
-
 <body>
-
     <nav class="navbar">
-        <div class="logo-area">
-            <div class="logo-icon"></div>
-            <div class="logo-text">Vemu <span>Library </span>Management System</div>
-            <div style="margin-left: 15px; font-size: 0.7rem; color: var(--gold);">Faculty Portal</div>
-        </div>
+        <div class="navbar-brand">Vemu Library — Faculty Recommendations</div>
         <div class="nav-links">
-            <button class="nav-item active" data-page="home">Home</button>
-            <button class="nav-item" data-page="notifications">Notifications <span id="notifBadge"
-                    class="notification-badge">0</span></button>
-            <button class="nav-item" data-page="history">History</button>
-            <button class="nav-item" data-page="recommend">Recommend</button>
-            <button class="nav-item" data-page="profile">Profile</button>
-            <button class="nav-item logout-btn" id="logoutBtn">Logout</button>
+            <button type="button" class="nav-btn" onclick="window.location.href='faculty.html'">Catalog</button>
+            <button type="button" class="nav-btn primary" onclick="apiService.auth.logout()">Logout</button>
         </div>
     </nav>
 
-    <div class="main-container">
-        <!-- HOME PAGE -->
-        <div id="homePage" class="page active-page">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Search & Borrow Books</h2>
-                    <div style="font-size: 0.75rem; color: var(--gold);">Faculty: 30-day borrowing period</div>
-                </div>
-                <div class="search-wrapper">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search by title or author...">
-                    <button id="searchBtn" class="btn-primary">Search</button>
-                </div>
-                <div id="booksContainer" class="book-grid"></div>
-            </div>
+    <main class="main">
+        <h1 class="page-title">Book recommendation system</h1>
+        <p class="page-sub">Suggest titles for the library collection. Your list is saved on this device until you clear it.</p>
 
-            <div class="card">
-                <div class="card-header">
-                    <h2>My Reserved Books</h2>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Book Title</th>
-                                <th>Reserved Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reservedList"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- NOTIFICATIONS PAGE -->
-        <div id="notificationsPage" class="page">
-            <div class="card">
-                <div class="flex-between" style="margin-bottom: 1.2rem;">
-                    <h2>Notification Center</h2>
-                    <button id="clearAllNotifications" class="btn-outline" style="font-size:0.8rem;">Clear All</button>
-                </div>
-                <div id="notificationsList" class="notification-list"></div>
-            </div>
-        </div>
-
-        <!-- HISTORY PAGE -->
-        <div id="historyPage" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Borrowing History</h2>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Book Title</th>
-                                <th>Borrowed Date</th>
-                                <th>Due Date</th>
-                                <th>Returned Date</th>
-                                <th>Status</th>
-                                <th>Fine</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyBody"></tbody>
-                    </table>
-                </div>
-                <div class="text-muted">Faculty borrowing period: 30 days | Fine: ₹10/day after due date</div>
-            </div>
-        </div>
-
-        <!-- RECOMMEND PAGE -->
-        <div id="recommendPage" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Recommend New Books</h2>
-                </div>
-                <div class="recommend-form">
-                    <div class="form-group">
-                        <label>Book Title *</label>
-                        <input type="text" id="recTitle" placeholder="Enter book title">
+        <section class="card" aria-labelledby="form-heading">
+            <h2 id="form-heading">Submit a recommendation</h2>
+            <form id="recommendationForm" class="form-grid" novalidate>
+                <div class="form-grid two">
+                    <div>
+                        <label for="bookTitle">Book title</label>
+                        <input type="text" id="bookTitle" name="bookTitle" required autocomplete="off" placeholder="e.g., Introduction to Algorithms">
                     </div>
-                    <div class="form-group">
-                        <label>Author *</label>
-                        <input type="text" id="recAuthor" placeholder="Enter author name">
-                    </div>
-                    <div class="form-group">
-                        <label>Reason for Recommendation</label>
-                        <textarea id="recReason" rows="3" placeholder="Why should this book be added?"></textarea>
-                    </div>
-                    <button id="submitRecommendation" class="btn-primary">Submit Recommendation</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h2>My Recommendations</h2>
-                </div>
-                <div id="recommendationsList" class="recommendations-list"></div>
-            </div>
-        </div>
-
-        <!-- PROFILE PAGE -->
-        <div id="profilePage" class="page">
-            <div class="card">
-                <div class="flex-between" style="margin-bottom: 1.2rem;">
-                    <h2>Faculty Profile</h2>
-                    <button id="editProfileBtn" class="btn-secondary">Edit Profile</button>
-                </div>
-                <div id="profileView" class="profile-grid"></div>
-                <div id="profileEditForm" style="display: none;">
-                    <div class="profile-field"><span class="field-label">Full Name:</span><input type="text"
-                            id="editName" class="edit-input-field"></div>
-                    <div class="profile-field"><span class="field-label">Email:</span><input type="email" id="editEmail"
-                            class="edit-input-field"></div>
-                    <div class="profile-field"><span class="field-label">Faculty ID:</span><input type="text"
-                            id="editFacultyId" class="edit-input-field"></div>
-                    <div class="profile-field"><span class="field-label">Department:</span><input type="text"
-                            id="editDepartment" class="edit-input-field"></div>
-                    <div class="profile-field"><span class="field-label">Mobile:</span><input type="text"
-                            id="editMobile" class="edit-input-field"></div>
-                    <div style="display: flex; gap: 12px; margin-top: 1.5rem;">
-                        <button id="saveProfileBtn" class="btn-primary">Save Changes</button>
-                        <button id="cancelEditBtn" class="btn-secondary">Cancel</button>
+                    <div>
+                        <label for="authorName">Author</label>
+                        <input type="text" id="authorName" name="authorName" required autocomplete="off" placeholder="Author name">
                     </div>
                 </div>
+                <div>
+                    <label for="department">Subject / department</label>
+                    <select id="department" name="department" required>
+                        <option value="">Select department</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="MBA">MBA</option>
+                        <option value="Science">Science</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="English">English</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="description">Description or reason</label>
+                    <textarea id="description" name="description" required placeholder="Why should the library acquire this book?"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-submit" id="submitBtn">Submit recommendation</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="card" aria-labelledby="filter-heading">
+            <h2 id="filter-heading">Browse recommendations</h2>
+            <div class="toolbar">
+                <div class="field-grow">
+                    <label for="searchInput">Search by title</label>
+                    <input type="search" id="searchInput" placeholder="Type to filter…" autocomplete="off">
+                </div>
+                <div>
+                    <label for="filterDepartment">Filter by department</label>
+                    <select id="filterDepartment">
+                        <option value="">All departments</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="MBA">MBA</option>
+                        <option value="Science">Science</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="English">English</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
             </div>
+        </section>
+
+        <section class="card" aria-labelledby="list-heading">
+            <h2 id="list-heading">Recommended books</h2>
+            <div id="recommendationsList" class="recommendations-grid" role="list"></div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+        <div class="modal">
+            <h3 id="editModalTitle">Edit recommendation</h3>
+            <form id="editForm" class="form-grid">
+                <input type="hidden" id="editId">
+                <div class="form-grid two">
+                    <div>
+                        <label for="editTitle">Book title</label>
+                        <input type="text" id="editTitle" required>
+                    </div>
+                    <div>
+                        <label for="editAuthor">Author</label>
+                        <input type="text" id="editAuthor" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="editDepartment">Subject / department</label>
+                    <input type="text" id="editDepartment" required>
+                </div>
+                <div>
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-submit">Save changes</button>
+                    <button type="button" class="btn btn-secondary" id="editCancel">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="../js/api-service.js"></script>
     <script>
-        // Faculty Data
-        let faculty = {
-            name: "Nagamani",
-            email: "nagamani@vemu.org",
-            facultyId: "FAC2024001",
-            department: "AI&ML-A",
-            mobile: "+91 9876543210"
-        };
+        (function () {
+            const STORAGE_KEY = 'vemu_faculty_book_recommendations_v1';
 
-        // Books Catalog
-        let books = [
-            { id: "BK001", title: "The Design of Everyday Things", author: "Don Norman", available: true, reservedBy: null },
-            { id: "BK002", title: "Clean Architecture", author: "Robert Martin", available: true, reservedBy: null },
-            { id: "BK003", title: "Deep Work", author: "Cal Newport", available: false, reservedBy: null },
-            { id: "BK004", title: "Thinking, Fast and Slow", author: "Daniel Kahneman", available: true, reservedBy: null },
-            { id: "BK005", title: "The Pragmatic Programmer", author: "David Thomas", available: false, reservedBy: null },
-            { id: "BK006", title: "Artificial Intelligence", author: "Russell & Norvig", available: true, reservedBy: null }
-        ];
+            const departmentOptions = [
+                'CSE', 'ECE', 'EEE', 'Mechanical', 'Civil', 'MBA',
+                'Science', 'Mathematics', 'Physics', 'Chemistry', 'English', 'Other'
+            ];
 
-        // Borrowing Records (30-day period)
-        let borrowRecords = [
-            { id: "BR1", bookId: "BK003", bookTitle: "Deep Work", borrowedDate: "2026-03-01", dueDate: "2026-03-31", returnedDate: null, fine: 0 },
-            { id: "BR2", bookId: "BK005", bookTitle: "The Pragmatic Programmer", borrowedDate: "2026-03-15", dueDate: "2026-04-14", returnedDate: null, fine: 0 }
-        ];
+            let recommendations = [];
 
-        // Reserved Books
-        let reservedBooks = [];
+            const form = document.getElementById('recommendationForm');
+            const listEl = document.getElementById('recommendationsList');
+            const searchInput = document.getElementById('searchInput');
+            const filterDepartment = document.getElementById('filterDepartment');
+            const toastEl = document.getElementById('toast');
+            const editModal = document.getElementById('editModal');
+            const editForm = document.getElementById('editForm');
+            const editDepartment = document.getElementById('editDepartment');
 
-        // Notifications
-        let notifications = [
-            { id: "NT1", type: "warning", title: "Due Date Reminder", message: "Book 'Deep Work' is due in 2 days. Return soon to avoid fines.", timestamp: new Date().toISOString(), read: false }
-        ];
-
-        // Recommendations
-        let recommendations = [];
-
-        // Popup Function
-        function showPopup(title, message, type = "info", detail = null) {
-            const existing = document.querySelector('.modal-overlay');
-            if (existing) existing.remove();
-
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay';
-            let icon = type === "success" ? "✓" : (type === "warning" ? "⚠" : "ℹ");
-            let iconColor = type === "success" ? "#2e7d64" : (type === "warning" ? "#d97706" : "#c9a03d");
-
-            overlay.innerHTML = `
-            <div class="modal-container">
-                <div class="modal-icon" style="color: ${iconColor}">${icon}</div>
-                <div class="modal-title">${escapeHtml(title)}</div>
-                <div class="modal-message">${escapeHtml(message)}</div>
-                ${detail ? `<div class="modal-detail">${escapeHtml(detail)}</div>` : ''}
-                <button class="modal-btn" id="closeModalBtn">OK</button>
-            </div>
-        `;
-            document.body.appendChild(overlay);
-            document.getElementById('closeModalBtn').onclick = () => overlay.remove();
-            setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 4000);
-        }
-
-        // Add Notification
-        function addNotification(type, title, message) {
-            const newNotif = {
-                id: "NT" + Date.now() + Math.random(),
-                type: type,
-                title: title,
-                message: message,
-                timestamp: new Date().toISOString(),
-                read: false
-            };
-            notifications.unshift(newNotif);
-            updateBadge();
-            renderNotifications();
-        }
-
-        function updateBadge() {
-            const unread = notifications.filter(n => !n.read).length;
-            const badge = document.getElementById("notifBadge");
-            if (badge) {
-                badge.innerText = unread;
-                badge.style.display = unread > 0 ? "inline-block" : "none";
-            }
-        }
-
-        // Calculate Fines
-        function calculateFines() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            borrowRecords.forEach(record => {
-                if (!record.returnedDate) {
-                    const due = new Date(record.dueDate);
-                    const diffDays = Math.floor((today - due) / (1000 * 60 * 60 * 24));
-                    record.fine = diffDays > 0 ? diffDays * 10 : 0;
+            function loadFromStorage() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return [];
+                    const parsed = JSON.parse(raw);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch {
+                    return [];
                 }
-            });
-        }
+            }
 
-        // Check Due Date Warnings
-        function checkDueWarnings() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            borrowRecords.forEach(record => {
-                if (!record.returnedDate) {
-                    const due = new Date(record.dueDate);
-                    const daysUntilDue = Math.floor((due - today) / (1000 * 60 * 60 * 24));
+            function saveToStorage() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(recommendations));
+            }
 
-                    if (daysUntilDue === 1) {
-                        const warningMsg = `Book "${record.bookTitle}" is due TOMORROW! Return by tomorrow to avoid ₹10/day fine.`;
-                        showPopup("⚠️ Due Tomorrow!", warningMsg, "warning");
-                        addNotification("warning", "Due Tomorrow", warningMsg);
-                    }
-                    if (daysUntilDue === 0) {
-                        const warningMsg = `Book "${record.bookTitle}" is due TODAY! Return today to avoid fines.`;
-                        showPopup("📚 Due Today!", warningMsg, "warning");
-                        addNotification("warning", "Due Today", warningMsg);
-                    }
-                    if (daysUntilDue < 0) {
-                        const overdueDays = Math.abs(daysUntilDue);
-                        const fineAmount = overdueDays * 10;
-                        const fineMsg = `Book "${record.bookTitle}" is ${overdueDays} day(s) overdue. Fine: ₹${fineAmount}. Please return immediately.`;
-                        addNotification("alert", "Overdue Fine Alert", fineMsg);
-                    }
+            function showToast(message, isSuccess) {
+                toastEl.textContent = message;
+                toastEl.className = 'toast show' + (isSuccess ? ' success' : '');
+                clearTimeout(showToast._t);
+                showToast._t = setTimeout(function () {
+                    toastEl.classList.remove('show');
+                }, 2800);
+            }
+
+            function escapeHtml(str) {
+                if (str == null) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function getFiltered() {
+                const q = (searchInput.value || '').trim().toLowerCase();
+                const dept = filterDepartment.value;
+                return recommendations.filter(function (r) {
+                    const titleMatch = !q || (r.title && r.title.toLowerCase().includes(q));
+                    const deptMatch = !dept || r.department === dept;
+                    return titleMatch && deptMatch;
+                }).sort(function (a, b) {
+                    return (b.createdAt || 0) - (a.createdAt || 0);
+                });
+            }
+
+            function renderList() {
+                const items = getFiltered();
+                if (items.length === 0) {
+                    listEl.innerHTML = '<p class="empty-state" role="status">' +
+                        (recommendations.length === 0
+                            ? 'No recommendations yet. Use the form above to add your first one.'
+                            : 'No entries match your search or filter.') +
+                        '</p>';
+                    return;
                 }
-            });
-        }
 
-        // Borrow Book (30 days)
-        function borrowBook(bookId) {
-            const book = books.find(b => b.id === bookId);
-            if (!book || !book.available) {
-                showPopup("Cannot Borrow", "This book is currently not available.", "warning");
-                return false;
-            }
-
-            book.available = false;
-            const todayStr = new Date().toISOString().slice(0, 10);
-            const dueDateObj = new Date();
-            dueDateObj.setDate(dueDateObj.getDate() + 30);
-            const dueStr = dueDateObj.toISOString().slice(0, 10);
-
-            const newRecord = {
-                id: "BR" + Date.now(),
-                bookId: book.id,
-                bookTitle: book.title,
-                borrowedDate: todayStr,
-                dueDate: dueStr,
-                returnedDate: null,
-                fine: 0
-            };
-            borrowRecords.push(newRecord);
-
-            // Remove from reserved if exists
-            const reservedIndex = reservedBooks.findIndex(r => r.bookId === book.id);
-            if (reservedIndex !== -1) {
-                reservedBooks.splice(reservedIndex, 1);
-                book.reservedBy = null;
-            }
-
-            showPopup("Book Borrowed", `"${book.title}" borrowed successfully!`, "success", `Due date: ${dueStr} (30-day period)`);
-            addNotification("info", "Book Borrowed", `You borrowed "${book.title}" on ${todayStr}. Due: ${dueStr}`);
-
-            renderHome();
-            renderHistory();
-            return true;
-        }
-
-        // Reserve Book
-        function reserveBook(bookId) {
-            const book = books.find(b => b.id === bookId);
-            if (!book) return;
-
-            if (book.reservedBy === faculty.facultyId) {
-                showPopup("Already Reserved", "You have already reserved this book.", "warning");
-                return;
-            }
-
-            if (book.reservedBy && book.reservedBy !== faculty.facultyId) {
-                showPopup("Already Reserved", "This book is reserved by another faculty member.", "warning");
-                return;
-            }
-
-            book.reservedBy = faculty.facultyId;
-            const newReserve = {
-                id: "RS" + Date.now(),
-                bookId: book.id,
-                bookTitle: book.title,
-                reservedDate: new Date().toISOString().slice(0, 10),
-                status: "active"
-            };
-            reservedBooks.push(newReserve);
-
-            showPopup("Book Reserved", `"${book.title}" has been reserved.`, "success", "You will be notified when it becomes available.");
-            addNotification("info", "Book Reserved", `You reserved "${book.title}". We'll notify you when available.`);
-
-            renderHome();
-        }
-
-        // Return Book
-        function returnBook(recordId) {
-            const record = borrowRecords.find(r => r.id === recordId);
-            if (!record || record.returnedDate) return;
-
-            const todayStr = new Date().toISOString().slice(0, 10);
-            record.returnedDate = todayStr;
-
-            const due = new Date(record.dueDate);
-            const returned = new Date(todayStr);
-            const diffDays = Math.floor((returned - due) / (1000 * 60 * 60 * 24));
-            let finalFine = 0;
-            if (diffDays > 0) finalFine = diffDays * 10;
-            record.fine = finalFine;
-
-            const book = books.find(b => b.id === record.bookId);
-            if (book) {
-                book.available = true;
-                book.reservedBy = null;
-            }
-
-            if (finalFine > 0) {
-                showPopup("Book Returned with Fine", `"${record.bookTitle}" returned.`, "warning", `Fine amount: ₹${finalFine}`);
-                addNotification("alert", "Fine Incurred", `Returned "${record.bookTitle}" with fine ₹${finalFine}.`);
-            } else {
-                showPopup("Book Returned", `"${record.bookTitle}" returned successfully.`, "success", "No fines applied.");
-                addNotification("info", "Book Returned", `You returned "${record.bookTitle}" on ${todayStr}.`);
-            }
-
-            renderHome();
-            renderHistory();
-        }
-
-        // Recommend Book
-        function recommendBook() {
-            const title = document.getElementById("recTitle").value.trim();
-            const author = document.getElementById("recAuthor").value.trim();
-            const reason = document.getElementById("recReason").value.trim();
-
-            if (!title || !author) {
-                showPopup("Incomplete", "Please provide book title and author.", "warning");
-                return;
-            }
-
-            const newRec = {
-                id: "RC" + Date.now(),
-                title: title,
-                author: author,
-                reason: reason || "No reason provided",
-                status: "pending",
-                date: new Date().toISOString().slice(0, 10)
-            };
-            recommendations.unshift(newRec);
-
-            document.getElementById("recTitle").value = "";
-            document.getElementById("recAuthor").value = "";
-            document.getElementById("recReason").value = "";
-
-            showPopup("Recommendation Submitted", `"${title}" has been recommended to the librarian.`, "success");
-            addNotification("info", "Book Recommended", `You recommended "${title}" by ${author}.`);
-            renderRecommendations();
-        }
-
-        // Render Functions
-        function renderHome() {
-            const query = document.getElementById("searchInput")?.value.toLowerCase() || "";
-            const filtered = books.filter(b => b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query));
-            const container = document.getElementById("booksContainer");
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:2rem;">No books found.</div>`;
-            } else {
-                container.innerHTML = filtered.map(book => {
-                    const isReservedByMe = book.reservedBy === faculty.facultyId;
-                    return `
-                    <div class="book-card">
-                        <div class="book-cover">${book.title.charAt(0)}</div>
-                        <div class="book-details">
-                            <div class="book-title">${escapeHtml(book.title)}</div>
-                            <div class="book-author">${escapeHtml(book.author)}</div>
-                            <span class="availability ${book.available ? 'avail-yes' : 'avail-no'}">${book.available ? 'Available' : 'Borrowed'}</span>
-                            <div class="book-actions">
-                                <button class="book-action" data-id="${book.id}" data-action="borrow" ${!book.available ? 'disabled' : ''}>Borrow (30 days)</button>
-                                <button class="book-action reserve-action" data-id="${book.id}" data-action="reserve" ${book.available ? 'disabled' : ''}>${isReservedByMe ? 'Reserved' : 'Reserve'}</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                listEl.innerHTML = items.map(function (r) {
+                    return (
+                        '<article class="rec-card" role="listitem" data-id="' + escapeHtml(r.id) + '">' +
+                        '<div class="rec-card-header">' +
+                        '<div class="rec-title">' + escapeHtml(r.title) + '</div>' +
+                        '<span class="rec-badge">' + escapeHtml(r.department) + '</span>' +
+                        '</div>' +
+                        '<div class="rec-meta"><strong>Author:</strong> ' + escapeHtml(r.author) + '</div>' +
+                        '<div class="rec-desc">' + escapeHtml(r.description) + '</div>' +
+                        '<div class="rec-actions">' +
+                        '<button type="button" class="btn-sm" data-action="edit" data-id="' + escapeHtml(r.id) + '">Edit</button>' +
+                        '<button type="button" class="btn-sm danger" data-action="delete" data-id="' + escapeHtml(r.id) + '">Delete</button>' +
+                        '</div>' +
+                        '</article>'
+                    );
                 }).join('');
             }
 
-            // Reserved List
-            const reservedTbody = document.getElementById("reservedList");
-            if (reservedBooks.length === 0) {
-                reservedTbody.innerHTML = '发展<td colspan="4" style="text-align:center;">No reserved books.</td> </tr>';
-            } else {
-                reservedTbody.innerHTML = reservedBooks.map(reserve => {
-                    const book = books.find(b => b.id === reserve.bookId);
-                    const isAvailable = book ? book.available : false;
-                    return `
-                    <tr>
-                        <td>${escapeHtml(reserve.bookTitle)}</td>
-                        <td>${reserve.reservedDate}</td>
-                        <td><span class="status-badge status-reserved">Reserved</span></td>
-                        <td>${isAvailable ? `<button class="btn-outline borrow-reserved" data-id="${reserve.bookId}" style="padding:4px 12px;">Borrow Now</button>` : 'Waiting for return'}</td>
-                    </tr>
-                `;
+            function fillEditDepartmentSelect(selected) {
+                editDepartment.innerHTML = departmentOptions.map(function (d) {
+                    return '<option value="' + escapeHtml(d) + '"' + (d === selected ? ' selected' : '') + '>' + escapeHtml(d) + '</option>';
                 }).join('');
             }
 
-            // Event Listeners
-            document.querySelectorAll('.book-action[data-action="borrow"]').forEach(btn => {
-                btn.addEventListener('click', () => borrowBook(btn.getAttribute('data-id')));
-            });
-            document.querySelectorAll('.book-action[data-action="reserve"]').forEach(btn => {
-                btn.addEventListener('click', () => reserveBook(btn.getAttribute('data-id')));
-            });
-            document.querySelectorAll('.borrow-reserved').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.getAttribute('data-id');
-                    const book = books.find(b => b.id === id);
-                    if (book && book.available) {
-                        borrowBook(id);
-                    }
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const title = document.getElementById('bookTitle').value.trim();
+                const author = document.getElementById('authorName').value.trim();
+                const department = document.getElementById('department').value;
+                const description = document.getElementById('description').value.trim();
+
+                if (!title || !author || !department || !description) {
+                    showToast('Please fill in all fields.', false);
+                    return;
+                }
+
+                recommendations.push({
+                    id: 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9),
+                    title: title,
+                    author: author,
+                    department: department,
+                    description: description,
+                    createdAt: Date.now()
                 });
+                saveToStorage();
+                form.reset();
+                renderList();
+                showToast('Recommendation added.', true);
             });
-        }
 
-        function renderHistory() {
-            calculateFines();
-            const tbody = document.getElementById("historyBody");
-            if (borrowRecords.length === 0) {
-                tbody.innerHTML = '发展<td colspan="6" style="text-align:center;">No borrowing history.</td> </tr>';
-                return;
-            }
+            searchInput.addEventListener('input', renderList);
+            filterDepartment.addEventListener('change', renderList);
 
-            tbody.innerHTML = borrowRecords.map(rec => {
-                const returned = rec.returnedDate ? rec.returnedDate : "—";
-                const status = rec.returnedDate ? "Returned" : "Borrowed";
-                return `
-                <tr>
-                    <td><strong>${escapeHtml(rec.bookTitle)}</strong></td>
-                    <td>${rec.borrowedDate}</td>
-                    <td>${rec.dueDate}</td>
-                    <td>${returned}</td>
-                    <td><span class="status-badge ${rec.returnedDate ? 'status-returned' : 'status-borrowed'}">${status}</span></td>
-                    <td>${rec.fine > 0 ? `₹${rec.fine}` : '₹0'}</td>
-                    <td>${!rec.returnedDate ? `<button class="btn-outline return-book" data-id="${rec.id}" style="padding:4px 12px;">Return</button>` : '—'}</td>
-                </tr>
-            `;
-            }).join('');
+            listEl.addEventListener('click', function (e) {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const id = btn.getAttribute('data-id');
+                const action = btn.getAttribute('data-action');
+                const rec = recommendations.find(function (r) { return r.id === id; });
+                if (!rec) return;
 
-            document.querySelectorAll('.return-book').forEach(btn => {
-                btn.addEventListener('click', () => returnBook(btn.getAttribute('data-id')));
+                if (action === 'delete') {
+                    if (!confirm('Remove this recommendation from your list?')) return;
+                    recommendations = recommendations.filter(function (r) { return r.id !== id; });
+                    saveToStorage();
+                    renderList();
+                    showToast('Recommendation removed.', true);
+                }
+
+                if (action === 'edit') {
+                    document.getElementById('editId').value = rec.id;
+                    document.getElementById('editTitle').value = rec.title;
+                    document.getElementById('editAuthor').value = rec.author;
+                    fillEditDepartmentSelect(rec.department);
+                    document.getElementById('editDescription').value = rec.description;
+                    editModal.classList.add('open');
+                }
             });
-        }
 
-        function renderNotifications() {
-            const container = document.getElementById("notificationsList");
-            if (notifications.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:2rem;">No notifications yet.</div>';
-                return;
-            }
+            document.getElementById('editCancel').addEventListener('click', function () {
+                editModal.classList.remove('open');
+            });
 
-            container.innerHTML = notifications.map(notif => {
-                let icon = notif.type === 'warning' ? '⚠' : (notif.type === 'alert' ? '🔔' : 'ℹ');
-                let borderColor = notif.type === 'warning' ? '#d97706' : (notif.type === 'alert' ? '#dc2626' : '#c9a03d');
-                return `
-                <div class="notification-item" style="border-left-color: ${borderColor};">
-                    <div class="notification-icon">${icon}</div>
-                    <div class="notification-content">
-                        <div class="notification-title">${escapeHtml(notif.title)}</div>
-                        <div class="notification-message">${escapeHtml(notif.message)}</div>
-                        <div class="notification-time">${new Date(notif.timestamp).toLocaleString()}</div>
-                    </div>
-                    <button class="btn-icon delete-notif" data-id="${notif.id}">✕</button>
-                </div>
-            `;
-            }).join('');
+            editModal.addEventListener('click', function (e) {
+                if (e.target === editModal) editModal.classList.remove('open');
+            });
 
-            document.querySelectorAll('.delete-notif').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    notifications = notifications.filter(n => n.id !== btn.getAttribute('data-id'));
-                    renderNotifications();
-                    updateBadge();
+            editForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const id = document.getElementById('editId').value;
+                const title = document.getElementById('editTitle').value.trim();
+                const author = document.getElementById('editAuthor').value.trim();
+                const department = editDepartment.value;
+                const description = document.getElementById('editDescription').value.trim();
+                if (!title || !author || !department || !description) {
+                    showToast('Please complete all edit fields.', false);
+                    return;
+                }
+                const idx = recommendations.findIndex(function (r) { return r.id === id; });
+                if (idx === -1) return;
+                recommendations[idx] = Object.assign({}, recommendations[idx], {
+                    title: title,
+                    author: author,
+                    department: department,
+                    description: description
                 });
+                saveToStorage();
+                editModal.classList.remove('open');
+                renderList();
+                showToast('Recommendation updated.', true);
             });
-        }
 
-        function renderRecommendations() {
-            const container = document.getElementById("recommendationsList");
-            if (recommendations.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:1rem;">No recommendations yet.</div>';
-                return;
+            function init() {
+                if (!apiService.auth.isAuthenticated()) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+                recommendations = loadFromStorage();
+                fillEditDepartmentSelect('CSE');
+                renderList();
             }
 
-            container.innerHTML = recommendations.map(rec => `
-            <div class="recommend-item">
-                <div style="font-weight:600;">${escapeHtml(rec.title)}</div>
-                <div style="font-size:0.8rem;">by ${escapeHtml(rec.author)}</div>
-                <div style="font-size:0.75rem; margin-top: 4px;">${escapeHtml(rec.reason)}</div>
-                <div style="font-size:0.7rem; color: var(--gold); margin-top: 6px;">Submitted: ${rec.date} • Pending Review</div>
-            </div>
-        `).join('');
-        }
-
-        function renderProfile() {
-            const viewDiv = document.getElementById("profileView");
-            viewDiv.innerHTML = `
-            <div class="profile-field"><span class="field-label">Full Name</span><span class="field-value">${escapeHtml(faculty.name)}</span></div>
-            <div class="profile-field"><span class="field-label">Email</span><span class="field-value">${escapeHtml(faculty.email)}</span></div>
-            <div class="profile-field"><span class="field-label">Faculty ID</span><span class="field-value">${escapeHtml(faculty.facultyId)}</span></div>
-            <div class="profile-field"><span class="field-label">Department</span><span class="field-value">${escapeHtml(faculty.department)}</span></div>
-            <div class="profile-field"><span class="field-label">Mobile</span><span class="field-value">${escapeHtml(faculty.mobile)}</span></div>
-            <div class="profile-field"><span class="field-label">Borrowing Period</span><span class="field-value">30 Days (Faculty Privilege)</span></div>
-        `;
-            document.getElementById("editName").value = faculty.name;
-            document.getElementById("editEmail").value = faculty.email;
-            document.getElementById("editFacultyId").value = faculty.facultyId;
-            document.getElementById("editDepartment").value = faculty.department;
-            document.getElementById("editMobile").value = faculty.mobile;
-        }
-
-        function saveProfile() {
-            faculty.name = document.getElementById("editName").value.trim() || faculty.name;
-            faculty.email = document.getElementById("editEmail").value.trim() || faculty.email;
-            faculty.facultyId = document.getElementById("editFacultyId").value.trim() || faculty.facultyId;
-            faculty.department = document.getElementById("editDepartment").value.trim() || faculty.department;
-            faculty.mobile = document.getElementById("editMobile").value.trim() || faculty.mobile;
-            renderProfile();
-            document.getElementById("profileEditForm").style.display = "none";
-            document.getElementById("profileView").style.display = "flex";
-            showPopup("Profile Updated", "Your information has been saved.", "success");
-            addNotification("info", "Profile Updated", "Your profile details were successfully modified.");
-        }
-
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.getElementById(pageId + 'Page').classList.add('active-page');
-            document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
-                if (btn.getAttribute('data-page') === pageId) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-
-            if (pageId === 'notifications') {
-                notifications.forEach(n => n.read = true);
-                updateBadge();
-                renderNotifications();
-            }
-            if (pageId === 'home') renderHome();
-            if (pageId === 'history') renderHistory();
-            if (pageId === 'recommend') renderRecommendations();
-            if (pageId === 'profile') renderProfile();
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function (m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        // Event Listeners
-        document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
-            btn.addEventListener('click', () => switchPage(btn.getAttribute('data-page')));
-        });
-
-        document.getElementById("logoutBtn").addEventListener("click", () => {
-            showPopup("Logged Out", "You have successfully logged out.", "info");
-            switchPage('home');
-        });
-
-        document.getElementById("searchBtn").addEventListener("click", () => renderHome());
-        document.getElementById("searchInput").addEventListener("keyup", () => renderHome());
-        document.getElementById("submitRecommendation").addEventListener("click", recommendBook);
-        document.getElementById("clearAllNotifications").addEventListener("click", () => {
-            notifications = [];
-            renderNotifications();
-            updateBadge();
-            showPopup("Cleared", "All notifications have been removed.", "info");
-        });
-
-        document.getElementById("editProfileBtn").addEventListener("click", () => {
-            document.getElementById("profileView").style.display = "none";
-            document.getElementById("profileEditForm").style.display = "block";
-        });
-
-        document.getElementById("saveProfileBtn").addEventListener("click", saveProfile);
-        document.getElementById("cancelEditBtn").addEventListener("click", () => {
-            document.getElementById("profileEditForm").style.display = "none";
-            document.getElementById("profileView").style.display = "flex";
-        });
-
-        // Initialize
-        calculateFines();
-        checkDueWarnings();
-        renderHome();
-        renderHistory();
-        renderNotifications();
-        renderRecommendations();
-        renderProfile();
-        updateBadge();
+            window.addEventListener('load', init);
+        })();
     </script>
 </body>
-
 </html>

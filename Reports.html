@@ -109,19 +109,45 @@
         font-family: 'Cormorant Garamond', serif; color: var(--gold-light); 
         text-align: center; margin-bottom: 40px; letter-spacing: 2px;
      }
+     .btn-download {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+    margin-left: 650px;
+    margin-bottom: 20px;
+}
+.btn-download:hover {
+  background: var(--navy);
+  color: var(--gold);
+  transform: translateY(-2px);
+}
     /* Responsive */
     @media (max-width: 1024px) { .grid-2, .stats-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <nav class="sidebar">
-    <h3>VEMU ADMIN</h3>
-    <div class="nav-menu">
-      <a onclick="showSection('overview', this)" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
-      <a href="books.html"><i class="fas fa-book"></i> Book Catalog</a>
-      <a onclick="showSection('backup', this)"><i class="fas fa-database"></i> Backup & Recovery</a>
-      <a href="users.html"><i class="fas fa-users"></i> Manage Users</a>
-      <a href="login.html" style="margin-top:50px; color: #f92810;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+     <h3>VEMU ADMIN</h3>
+
+  <div class="nav-menu">
+    <a href="adminstrator.html" class="nav-item">
+      <i class="fas fa-users-cog"></i> Manage Users
+    </a>
+
+    <a href="reports.html" class="nav-item">
+      <i class="fas fa-file-invoice"></i> Reports
+    </a>
+
+    <a href="backup.html" class="nav-item">
+      <i class="fas fa-hdd"></i> Backup & Recovery
+    </a>
+        <a href="login.html" style="margin-top:50px; color: #f92810;"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
   </nav>
 
@@ -134,7 +160,9 @@
             <span style="font-size: 0.8rem; color: var(--gold); font-weight: 700;">LIVE SYSTEM DATA</span>
         </div>
       </div>
-
+<button class="btn-download" onclick="downloadCSV()">
+  <i class="fas fa-download"></i> Download Reports
+</button>
       <div class="stats-grid">
         <div class="stat-box">
           <p>Total Collection</p>
@@ -180,6 +208,7 @@
     </div>
   </main>
 
+  <script src="js/api-service.js"></script>
   <script>
     const totalBooksCard = document.getElementById('totalBooks');
     const issuedBooksCard = document.getElementById('issuedBooks');
@@ -187,17 +216,49 @@
     const reportForm = document.getElementById('reportForm');
     let statsChart = null;
 
-    function loadReportStats() {
-      const stats = JSON.parse(localStorage.getItem('reportStats') || '{"totalBooks":0,"issuedBooks":0,"overdueBooks":0}');
-      totalBooksCard.textContent = stats.totalBooks;
-      issuedBooksCard.textContent = stats.issuedBooks;
-      overdueBooksCard.textContent = stats.overdueBooks;
-      
-      document.getElementById('totalInput').value = stats.totalBooks;
-      document.getElementById('issuedInput').value = stats.issuedBooks;
-      document.getElementById('overdueInput').value = stats.overdueBooks;
+    async function init() {
+        if (!apiService.auth.isAuthenticated()) {
+            window.location.href = 'login.html';
+            return;
+        }
+        await loadReportStats();
+    }
 
-      updateChart(stats.totalBooks, stats.issuedBooks, stats.overdueBooks);
+    async function loadReportStats() {
+      try {
+          const result = await apiService.request('/reports');
+          const stats = Array.isArray(result) ? result[0] : (result.data || result);
+          
+          if (!stats) {
+            // Fallback for demo
+            const localStats = JSON.parse(localStorage.getItem('reportStats') || '{"totalBooks":450,"issuedBooks":120,"overdueBooks":15}');
+            updateUI(localStats);
+            return;
+          }
+
+          updateUI(stats);
+      } catch (error) {
+          console.error("Failed to load reports:", error);
+          // Fallback to demo data
+          const localStats = JSON.parse(localStorage.getItem('reportStats') || '{"totalBooks":450,"issuedBooks":120,"overdueBooks":15}');
+          updateUI(localStats);
+      }
+    }
+
+    function updateUI(stats) {
+      totalBooksCard.textContent = stats.totalBooks || stats.totalBooksVolume || 0;
+      issuedBooksCard.textContent = stats.issuedBooks || stats.issuedToStudents || 0;
+      overdueBooksCard.textContent = stats.overdueBooks || stats.overdueRecords || 0;
+      
+      document.getElementById('totalInput').value = stats.totalBooks || stats.totalBooksVolume || 0;
+      document.getElementById('issuedInput').value = stats.issuedBooks || stats.issuedToStudents || 0;
+      document.getElementById('overdueInput').value = stats.overdueBooks || stats.overdueRecords || 0;
+
+      updateChart(
+          stats.totalBooks || stats.totalBooksVolume || 0, 
+          stats.issuedBooks || stats.issuedToStudents || 0, 
+          stats.overdueBooks || stats.overdueRecords || 0
+      );
     }
 
     function updateChart(total, issued, overdue) {
@@ -224,7 +285,7 @@
       });
     }
 
-    reportForm.addEventListener('submit', (e) => {
+    reportForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const total = parseInt(document.getElementById('totalInput').value);
       const issued = parseInt(document.getElementById('issuedInput').value);
@@ -235,12 +296,40 @@
         return;
       }
 
-      const stats = { totalBooks: total, issuedBooks: issued, overdueBooks: overdue };
-      localStorage.setItem('reportStats', JSON.stringify(stats));
-      loadReportStats();
+      try {
+          await apiService.request('/reports', {
+              method: 'POST',
+              body: JSON.stringify({
+                  totalBooksVolume: total,
+                  issuedToStudents: issued,
+                  overdueRecords: overdue,
+                  generatedBy: apiService.auth.getCurrentUser().id
+              })
+          });
+          alert("Statistics synchronized with database.");
+          await loadReportStats();
+      } catch (error) {
+          alert("Error: " + error.message);
+      }
     });
 
-    document.addEventListener('DOMContentLoaded', loadReportStats);
+    window.onload = init;
+
+    function downloadCSV() {
+      const total = totalBooksCard.textContent;
+      const issued = issuedBooksCard.textContent;
+      const overdue = overdueBooksCard.textContent;
+      const date = new Date().toLocaleString();
+
+      const csv = `Date,Total Books,Issued Books,Overdue Books\n${date},${total},${issued},${overdue}`;
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "library_reports.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   </script>
 </body>
 </html>

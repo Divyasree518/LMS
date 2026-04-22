@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Login | Tovemu Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --navy: #002147;
@@ -142,10 +143,10 @@
                 <label>SELECT SYSTEM ROLE</label>
                 <select id="role" required>
                     <option value="" disabled selected>Select your role...</option>
-                    <option value="administrator">Administrator</option>
-                    <option value="faculty">Faculty</option>
-                    <option value="librarian">Librarian</option>
-                    <option value="student">Student</option>
+                    <option value="administrator">⚙️ Administrator</option>
+                    <option value="faculty">👨‍🏫 Faculty</option>
+                    <option value="librarian">📖 Librarian</option>
+                    <option value="student">🧑‍🎓 Student</option>
                 </select>
             </div>
 
@@ -171,57 +172,64 @@
         </div>
     </div>
 
+    <script src="js/api-service.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
+            const roleInput = document.getElementById('role').value;
             const overlay = document.getElementById('modalOverlay');
             const msg = document.getElementById('modalMsg');
             
-            let users = JSON.parse(localStorage.getItem('vemuUsers')) || [];
-            const user = users.find(u => u.email === username && atob(u.password) === password);
-            
-            if (!user) {
+            // Map frontend role names to backend role names
+            const roleMap = {
+                'administrator': 'admin',
+                'faculty': 'faculty',
+                'librarian': 'librarian',
+                'student': 'student'
+            };
+            const role = roleMap[roleInput];
+
+            try {
+                const result = await apiService.auth.login({
+                    username,
+                    password,
+                    role
+                });
+
+                // Show success popup
+                const user = result.user;
                 overlay.style.display = 'flex';
-                msg.innerHTML = '❌ Not Registered! <br> Please signup first! 🎓📚';
-                setTimeout(() => overlay.style.display = 'none', 3000);
-                return;
-            }
-            
-            if (user.role !== role.replace('rator', '')) {
+                msg.innerHTML = `Welcome ${user.name}!<br>Redirecting to ${roleInput.toUpperCase()} portal... ✨`;
+                
+                setTimeout(() => {
+                    let targetPage = "";
+                    switch(roleInput) {
+                            case "administrator":
+                            targetPage = "adminstrator.html";
+                            break;
+                        case "student":
+                            targetPage = "student_portal/studentportal.html";
+                            break;
+                        case "librarian":
+                            targetPage = "libraryDashboard.html";
+                            break;
+                        case "faculty":
+                            targetPage = "student_portal/faculty.html";
+                            break;
+                        default:
+                            targetPage = "index.html";
+                    }
+                    window.location.href = targetPage;
+                }, 2000);
+
+            } catch (error) {
                 overlay.style.display = 'flex';
-                msg.innerHTML = '⚠️ Role mismatch! Contact admin. 🔐';
+                msg.innerHTML = `❌ Access Denied! <br> ${error.message} 🔐`;
                 setTimeout(() => overlay.style.display = 'none', 3000);
-                return;
             }
-            
-            // Show success popup
-            overlay.style.display = 'flex';
-            msg.innerHTML = `Welcome ${user.name}!<br>Redirecting to ${role.toUpperCase()} portal... ✨`;
-            
-            setTimeout(() => {
-                let targetPage = "";
-                switch(role) {
-                    case "administrator":
-                        targetPage = "adminstrator.html";
-                        break;
-                    case "student":
-                        targetPage = "student_portal/studentportal.html";
-                        break;
-                    case "librarian":
-                        targetPage = "libraryDashboard.html";
-                        break;
-                    case "faculty":
-                        targetPage = "student_portal/faculty.html";
-                        break;
-                    default:
-                        targetPage = "index.html";
-                }
-                window.location.href = targetPage;
-            }, 2000);
         });
     </script>
 </body>

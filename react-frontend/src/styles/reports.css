@@ -1,0 +1,134 @@
+/* Reports Page Styles */
+.reports-page {
+  padding-top: 100px;
+  padding: 100px 32px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.reports-page h1 {
+  font-size: 2.2rem;
+  color: var(--navy);
+  margin-bottom: 40px;
+}
+
+.summary-section,
+.circulation-section,
+.reports-list {
+  margin-bottom: 50px;
+}
+
+.summary-section h2,
+.circulation-section h2,
+.reports-list h2 {
+  color: var(--navy);
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.summary-card {
+  background: white;
+  padding: 30px;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  border-left: 4px solid var(--gold);
+}
+
+.summary-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.summary-stat {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.summary-label {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.circulation-stats {
+  background: var(--cream-2);
+  padding: 20px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+
+.circulation-stats p {
+  margin-bottom: 10px;
+}
+
+.top-books,
+.usage-by-category {
+  margin-bottom: 30px;
+}
+
+.top-books h3,
+.usage-by-category h3 {
+  color: var(--navy);
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+table thead {
+  background: var(--navy);
+  color: white;
+}
+
+table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--cream-2);
+}
+
+table tbody tr:hover {
+  background: var(--cream-2);
+}
+
+.report-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.report-card {
+  background: white;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.report-card h3 {
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.report-card p {
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}

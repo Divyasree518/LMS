@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>📚 Royal Library | Student Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Poppins', sans-serif; }
+        body { background: linear-gradient(135deg, #f8fafd 0%, #eef2f8 100%); min-height: 100vh; }
+        .navbar { background: #0a1a2f; box-shadow: 0 8px 20px rgba(0,0,0,0.2); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 3px solid #d4af37; }
+        .logo-text { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #f5e7b2, #d4af37); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav-links { display: flex; gap: 1.2rem; align-items: center; }
+        .nav-item { background: none; border: none; font-size: 1rem; font-weight: 600; padding: 0.5rem 0.8rem; cursor: pointer; color: #e6edf6; transition: 0.2s; border-radius: 40px; }
+        .nav-item:hover, .nav-item.active { color: #d4af37; background: rgba(212, 175, 55, 0.1); }
+        .notification-badge { background: #d9534f; color: white; border-radius: 50px; padding: 2px 8px; font-size: 0.7rem; font-weight: bold; margin-left: 5px; }
+        .logout-btn { background: #d4af37; color: #0a1a2f; padding: 0.4rem 1.2rem; border-radius: 40px; font-weight: bold; }
+        .main-container { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
+        .page { display: none; }
+        .active-page { display: block; animation: fadeSlide 0.3s ease; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+        .card-elegant { background: white; border-radius: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); padding: 1.8rem; border-top: 5px solid #d4af37; }
+        .search-wrapper { display: flex; gap: 12px; margin-bottom: 2rem; }
+        .search-input { flex: 1; padding: 14px 22px; border: 2px solid #e2e8f0; border-radius: 60px; font-size: 1rem; }
+        .btn-gold { background: #d4af37; color: #0a1a2f; border: none; padding: 0 28px; border-radius: 60px; font-weight: bold; cursor: pointer; }
+        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.8rem; }
+        .book-card { background: white; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #ede9d0; text-align: center; }
+        .book-img { background: #faf6ea; height: 150px; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+        .book-info { padding: 1rem; }
+        .book-title { font-weight: 800; color: #0a1a2f; }
+        .book-status { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 50px; margin: 8px 0; display: inline-block; }
+        .status-avail { background: #e0f2e6; color: #1f7840; }
+        .status-borrowed { background: #fff0e0; color: #b45b0a; }
+        .book-btn { width: 100%; background: #0a1a2f; color: #d4af37; border: none; padding: 10px; border-radius: 40px; cursor: pointer; font-weight: bold; }
+        .book-btn:disabled { background: #ccc; color: #666; cursor: not-allowed; }
+        .profile-row { padding: 12px 0; border-bottom: 1px solid #eee; display: flex; }
+        .profile-label { width: 120px; font-weight: bold; color: #0a1a2f; }
+        
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .popup-card { background: white; border-radius: 40px; padding: 2rem; max-width: 400px; text-align: center; border-top: 8px solid #d4af37; }
+        .popup-btn { background: #d4af37; color: #0a1a2f; border: none; padding: 10px 30px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text">Vemu Library</div>
+        <div class="nav-links">
+            <button class="nav-item active" data-page="home">🏠 Home</button>
+            <button class="nav-item" data-page="notifications">🔔 Alerts <span id="notifBadge" class="notification-badge" style="display:none">0</span></button>
+            <button class="nav-item" data-page="profile">👤 Profile</button>
+            <button class="nav-item logout-btn" onclick="apiService.auth.logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div id="homePage" class="page active-page">
+            <div class="card-elegant">
+                <h2>Explore Books</h2>
+                <div class="search-wrapper">
+                    <input type="text" id="searchBookInput" class="search-input" placeholder="Search books...">
+                    <button id="searchBookBtn" class="btn-gold">Search</button>
+                </div>
+                <div id="booksContainer" class="book-grid"></div>
+            </div>
+        </div>
+
+        <div id="notificationsPage" class="page">
+            <div class="card-elegant">
+                <h2>Notifications</h2>
+                <div id="notificationsList" style="margin-top:20px"></div>
+            </div>
+        </div>
+
+        <div id="profilePage" class="page">
+            <div class="card-elegant">
+                <h2>User Profile</h2>
+                <div id="profileDisplay" style="margin-top:20px"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script>
+        function showPopup(title, message, icon) {
+            const overlay = document.createElement('div');
+            overlay.className = 'popup-overlay';
+            overlay.innerHTML = `
+                <div class="popup-card">
+                    <div style="font-size:3rem">${icon}</div>
+                    <h3>${title}</h3>
+                    <p style="margin:10px 0">${message}</p>
+                    <button class="popup-btn" onclick="this.parentElement.parentElement.remove()">Got it</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        let books = [];
+        let profile = {};
+        let notifications = [];
+
+        async function init() {
+            if (!apiService.auth.isAuthenticated()) { window.location.href = 'login.html'; return; }
+            const user = apiService.auth.getCurrentUser();
+            profile = { name: user.name || user.username, email: user.email, id: user.id };
+            await loadBooks();
+            renderHome();
+            renderProfile();
+        }
+
+        async function loadBooks() {
+            try {
+                const res = await apiService.books.getAll();
+                books = res.data;
+            } catch (e) { console.error(e); }
+        }
+
+        async function borrow(id) {
+            try {
+                await apiService.books.borrow(id, profile.id);
+                showPopup("Success", "Book borrowed successfully", "✅");
+                await loadBooks();
+                renderHome();
+            } catch (e) { showPopup("Error", e.message, "❌"); }
+        }
+
+        function renderHome() {
+            const term = document.getElementById('searchBookInput').value.toLowerCase();
+            const filtered = books.filter(b => b.title.toLowerCase().includes(term));
+            const container = document.getElementById('booksContainer');
+            container.innerHTML = filtered.map(b => `
+                <div class="book-card">
+                    <div class="book-img">📖</div>
+                    <div class="book-info">
+                        <div class="book-title">${b.title}</div>
+                        <div class="book-status ${b.available > 0 ? 'status-avail' : 'status-borrowed'}">
+                            ${b.available > 0 ? 'Available' : 'Borrowed'}
+                        </div>
+                        <button class="book-btn" onclick="borrow('${b._id}')" ${b.available <= 0 ? 'disabled' : ''}>Borrow</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProfile() {
+            document.getElementById('profileDisplay').innerHTML = `
+                <div class="profile-row"><span class="profile-label">Name:</span>${profile.name}</div>
+                <div class="profile-row"><span class="profile-label">Email:</span>${profile.email}</div>
+                <div class="profile-row"><span class="profile-label">User ID:</span>${profile.id}</div>
+            `;
+        }
+
+        document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+                document.getElementById(btn.dataset.page + 'Page').classList.add('active-page');
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i === btn));
+            };
+        });
+
+        document.getElementById('searchBookBtn').onclick = renderHome;
+        window.onload = init;
+    </script>
+</body>
+</html>

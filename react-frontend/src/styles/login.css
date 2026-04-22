@@ -1,0 +1,132 @@
+/* Login Page Styles */
+.login-page {
+  padding-top: 68px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(rgba(0, 33, 71, 0.85), rgba(0, 33, 71, 0.85)),
+    url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.login-container {
+  background: var(--cream);
+  width: 100%;
+  max-width: 420px;
+  padding: 50px 40px;
+  border-top: 8px solid var(--gold);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-lg);
+  margin: 20px;
+}
+
+.login-container h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  color: var(--navy);
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.login-container p {
+  color: #666;
+  margin-bottom: 35px;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: var(--navy);
+  letter-spacing: 0.5px;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  outline: none;
+  transition: 0.3s;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  border-radius: 8px;
+}
+
+input:focus, select:focus {
+  border-color: var(--gold);
+  background: #fff;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 16px;
+  background: var(--navy);
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: 0.4s;
+  margin-top: 15px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-login:hover {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.login-hint {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.signin-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.signin-link a {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.signin-link a:hover {
+  text-decoration: underline;
+}

@@ -20,7 +20,6 @@
         width: 280px; background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
         padding: 40px 20px; border-right: 1px solid rgba(200, 151, 58, 0.2);
       }
-      .sidebar h3 { font-family: 'Cormorant Garamond', serif; color: #E8DECE; text-align: center; margin-bottom: 40px; letter-spacing: 2px; }
       .nav-menu a {
         display: flex; align-items: center; gap: 15px; color: rgba(255, 255, 255, 0.7);
         text-decoration: none; padding: 15px; border-radius: 10px; transition: 0.3s; margin-bottom: 5px;
@@ -67,18 +66,34 @@
         color: white; padding: 15px 25px; border-radius: 8px; border-left: 5px solid var(--gold);
         display: none; animation: slideUp 0.5s;
       }
+       .sidebar h3 { 
+        font-family: 'Cormorant Garamond', serif; 
+        color:gold light; 
+        text-align: center;
+        margin-bottom: 40px;
+        letter-spacing: 2px;
+     }
       @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
   <div id="toast">Action completed successfully!</div>
-    <nav class="nav-menu">
-        <h3>VEMU ADMIN</h3>
-        <a href="adminstrator.html"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <a href="users.html"><i class="fas fa-users-cog"></i> Manage Users</a>
-        <a href="reports.html"><i class="fas fa-file-invoice"></i> Reports</a>
-        <a href="backup.html" class="active"><i class="fas fa-hdd"></i> Backup & Recovery</a>
+    <nav class="sidebar">
+       <h3>VEMU ADMIN</h3>
+
+  <div class="nav-menu">
+    <a href="adminstrator.html" class="nav-item">
+      <i class="fas fa-users-cog"></i> Manage Users
+    </a>
+
+    <a href="reports.html" class="nav-item">
+      <i class="fas fa-file-invoice"></i> Reports
+    </a>
+
+    <a href="backup.html" class="nav-item">
+      <i class="fas fa-hdd"></i> Backup & Recovery
+    </a>
         <a href="login.html" style="margin-top:50px; color: #f92810;"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </nav>
   </div>

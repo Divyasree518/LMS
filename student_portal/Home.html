@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vemu Library Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="chat-widget.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+      --cream:       #FAF7F2;
+      --cream-2:     #F4EFE6;
+      --cream-3:     #EDE5D8;
+      --parchment:   #E8DECE;
+      --ink:         #1A1410;
+      --ink-2:       #2E2419;
+      --ink-soft:    #5C4F40;
+      --ink-muted:   #8B7B6A;
+      --gold:        #C8973A;
+      --gold-light:  #E3B96A;
+      --gold-pale:   #F5E8C8;
+      --navy:        #1C2B4A;
+      --navy-light:  #2E4170;
+      --teal:        #1A6B6B;
+      --teal-light:  #E0F4F4;
+      --red:         #A63228;
+      --red-pale:    #F9ECEA;
+      --shadow-sm:   0 2px 8px rgba(26,20,16,.07);
+      --shadow-md:   0 6px 24px rgba(26,20,16,.10);
+      --shadow-lg:   0 16px 48px rgba(26,20,16,.13);
+      --radius:      14px;
+      --radius-lg:   22px;
+      --radius-xl:   32px;
+    }
+
+    [data-theme="dark"] {
+      --cream: #1C2B4A;
+      --cream-2: #2E4170;
+      --cream-3: #3a5490;
+      --parchment: #4a5e80;
+      --ink: #FAF7F2;
+      --ink-2: #E8DECE;
+      --ink-soft: #E3B96A;
+      --ink-muted: #C8973A;
+    }
+
+    body {
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      overflow-x: hidden;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--cream-2); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 99px; }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .4;
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(250,247,242,.88);
+      backdrop-filter: blur(18px) saturate(1.4);
+      -webkit-backdrop-filter: blur(18px) saturate(1.4);
+      border-bottom: 1px solid var(--parchment);
+      box-shadow: var(--shadow-sm);
+      transition: all .3s ease;
+    }
+
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      box-shadow: 0 2px 8px rgba(28,43,74,.25);
+    }
+
+    .nav-logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .nav-logo-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--ink);
+      letter-spacing: .01em;
+    }
+
+    .nav-logo-sub {
+      font-size: 10px;
+      color: var(--ink-muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: .01em;
+    }
+
+    /* UPDATED: Hover state turns Navy Blue with White text */
+    .nav-links a:hover {
+      color: #FFFFFF;
+      background-color: var(--navy);
+      box-shadow: 0 4px 12px rgba(28, 43, 74, 0.15);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-ghost {
+      padding: 8px 18px;
+      border: 1.5px solid var(--parchment);
+      border-radius: 10px;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--gold);
+      color: var(--navy);
+      background: var(--gold-pale);
+    }
+
+    .btn-primary {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: all .25s ease;
+      box-shadow: 0 3px 12px rgba(28,43,74,.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(28,43,74,.35);
+      background: linear-gradient(135deg, var(--navy-light) 0%, #3a5490 100%);
+    }
+
+    .theme-toggle {
+      width: 40px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid var(--parchment);
+      background: transparent;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--gold);
+      background: var(--gold-pale);
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 32px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 20% 30%, rgba(200,151,58,.10) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 70% at 80% 70%, rgba(28,43,74,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 50% 0%, rgba(244,239,230,.8) 0%, transparent 70%);
+    }
+
+    .hero-ornament {
+      position: absolute;
+      top: 120px; right: -60px;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(200,151,58,.15);
+      pointer-events: none;
+    }
+
+    .hero-ornament::before {
+      content: '';
+      position: absolute;
+      inset: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,151,58,.10);
+    }
+
+    .hero-ornament-2 {
+      position: absolute;
+      bottom: 60px; left: -80px;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      border: 1px solid rgba(28,43,74,.08);
+      pointer-events: none;
+    }
+
+    .hero-lines {
+      position: absolute;
+      top: 68px; left: 0; right: 0; bottom: 0;
+      background-image:
+        linear-gradient(rgba(200,151,58,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,151,58,.06) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px 6px 10px;
+      background: var(--cream-2);
+      border: 1px solid var(--parchment);
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      letter-spacing: .04em;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeSlideDown .6s ease both;
+    }
+
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.8); }
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 6.5vw, 5.2rem);
+      font-weight: 900;
+      line-height: 1.09;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin-bottom: 22px;
+      animation: fadeSlideDown .7s ease .1s both;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--navy);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-title em::after {
+      content: '';
+      position: absolute;
+      bottom: 4px; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 2px;
+    }
+
+    .hero-subtitle {
+      font-size: 17px;
+      color: var(--ink-soft);
+      font-weight: 400;
+      max-width: 520px;
+      margin: 0 auto 36px;
+      line-height: 1.65;
+      animation: fadeSlideDown .7s ease .2s both;
+    }
+
+    .hero-tags {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      animation: fadeSlideDown .7s ease .25s both;
+    }
+
+    .hero-tag {
+      padding: 5px 14px;
+      background: var(--cream-2);
+      border: 1px solid var(--parchment);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      letter-spacing: .04em;
+    }
+
+    .hero-tag-sep {
+      color: var(--parchment);
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation: fadeSlideDown .7s ease .3s both;
+    }
+
+    .btn-hero-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 30px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .25s ease;
+      box-shadow: 0 4px 18px rgba(28,43,74,.3);
+    }
+
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(28,43,74,.35);
+    }
+
+    .btn-hero-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: var(--cream);
+      color: var(--ink);
+      border: 1.5px solid var(--parchment);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .25s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-hero-secondary:hover {
+      border-color: var(--gold);
+      background: var(--gold-pale);
+      transform: translateY(-1px);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      animation: fadeSlideDown .7s ease .5s both;
+    }
+
+    .scroll-text {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(180deg, var(--gold) 0%, transparent 100%);
+      animation: scrollPulse 2s ease infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: .4; transform: scaleY(.7); }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ─── STATS ─── */
+    .stats-section {
+      padding: 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stats-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--cream);
+      border: 1px solid var(--parchment);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 0;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat-item {
+      padding: 40px 32px;
+      text-align: center;
+      border-right: 1px solid var(--cream-3);
+      position: relative;
+      transition: background .2s ease;
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-item:hover {
+      background: var(--cream-2);
+    }
+
+    .stat-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 40px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+
+    .stat-item:hover::before { opacity: 1; }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--navy);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-num sup {
+      font-size: 1.4rem;
+      color: var(--gold);
+    }
+
+    .stat-label {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      font-weight: 500;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    /* ─── SECTION COMMON ─── */
+    section {
+      padding: 100px 32px;
+    }
+
+    .section-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 24px; height: 1.5px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 2.9rem);
+      font-weight: 800;
+      line-height: 1.18;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--ink-soft);
+      max-width: 480px;
+      line-height: 1.65;
+    }
+
+    /* ─── FEATURES ─── */
+    .features-section { background: var(--cream-2); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+
+    .feature-card {
+      background: var(--cream);
+      border: 1px solid var(--parchment);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all .3s ease;
+      cursor: default;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--gold-light);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      letter-spacing: .08em;
+      margin-bottom: 20px;
+    }
+
+    .feature-icon {
+      width: 52px; height: 52px;
+      background: var(--cream-2);
+      border: 1px solid var(--parchment);
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      margin-bottom: 18px;
+      transition: all .3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+      background: var(--gold-pale);
+      border-color: var(--gold-light);
+      transform: scale(1.05);
+    }
+
+    .feature-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+
+    .feature-corner {
+      position: absolute;
+      bottom: 20px; right: 20px;
+      width: 32px; height: 32px;
+      border-bottom: 1.5px solid var(--parchment);
+      border-right: 1.5px solid var(--parchment);
+      border-radius: 0 0 6px 0;
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+
+    .feature-card:hover .feature-corner { opacity: 1; }
+
+    /* ─── MISSION ─── */
+    .mission-section {
+      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mission-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 50%, rgba(200,151,58,.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 90% 30%, rgba(255,255,255,.04) 0%, transparent 60%);
+    }
+
+    .mission-grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .mission-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mission-left .section-label { color: var(--gold-light); }
+    .mission-left .section-label::before { background: var(--gold-light); }
+
+    .mission-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 2.9rem);
+      font-weight: 800;
+      line-height: 1.18;
+      letter-spacing: -.02em;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .mission-body {
+      font-size: 15.5px;
+      color: rgba(255,255,255,.7);
+      line-height: 1.75;
+      margin-bottom: 36px;
+    }
+
+    .mission-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mission-tag {
+      padding: 7px 16px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: rgba(255,255,255,.8);
+      letter-spacing: .02em;
+      transition: all .2s ease;
+    }
+
+    .mission-tag:hover {
+      background: rgba(200,151,58,.2);
+      border-color: rgba(200,151,58,.4);
+      color: var(--gold-light);
+    }
+
+    .mission-right {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mission-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: all .3s ease;
+    }
+
+    .mission-card:hover {
+      background: rgba(255,255,255,.10);
+      border-color: rgba(200,151,58,.3);
+      transform: translateX(4px);
+    }
+
+    .mission-card-icon {
+      width: 42px; height: 42px;
+      background: rgba(200,151,58,.15);
+      border: 1px solid rgba(200,151,58,.25);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .mission-card-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .mission-card-desc {
+      font-size: 13.5px;
+      color: rgba(255,255,255,.55);
+      line-height: 1.55;
+    }
+
+    /* ─── MODULES ─── */
+    .modules-section { background: var(--cream); }
+
+    .modules-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 56px;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .module-card {
+      background: var(--cream-2);
+      border: 1px solid var(--parchment);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      display: flex;
+      gap: 20px;
+      transition: all .3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(200,151,58,.04) 100%);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+
+    .module-card:hover {
+      border-color: var(--gold-light);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+
+    .module-card:hover::after { opacity: 1; }
+
+    .module-icon {
+      width: 56px; height: 56px;
+      background: var(--cream);
+      border: 1.5px solid var(--parchment);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      transition: all .3s ease;
+    }
+
+    .module-card:hover .module-icon {
+      background: var(--gold-pale);
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(200,151,58,.08);
+    }
+
+    .module-content {
+      
+    }
+
+    .module-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .module-desc {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      background: var(--cream-2);
+      padding: 80px 32px;
+    }
+
+    .cta-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 60%, #2E4A80 100%);
+      border-radius: var(--radius-xl);
+      padding: 72px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 80% at 15% 50%, rgba(200,151,58,.15) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 85% 20%, rgba(255,255,255,.06) 0%, transparent 60%);
+    }
+
+    .cta-box-pattern {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .cta-content { position: relative; z-index: 1; }
+
+    .cta-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 20px;
+    }
+
+    .cta-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+
+    .cta-desc {
+      font-size: 16px;
+      color: rgba(255,255,255,.65);
+      margin-bottom: 40px;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-cta-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 30px;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .25s ease;
+      box-shadow: 0 4px 18px rgba(200,151,58,.4);
+    }
+
+    .btn-cta-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(200,151,58,.45);
+    }
+
+    .btn-cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .25s ease;
+    }
+
+    .btn-cta-secondary:hover {
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.35);
+      transform: translateY(-1px);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--ink-2);
+      padding: 48px 32px;
+    }
+
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-brand-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+    }
+
+    .footer-brand-text {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .footer-brand-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .04em;
+      margin-top: 1px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: rgba(255,255,255,.45);
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+
+    .footer-links a:hover { color: var(--gold-light); }
+
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .02em;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+
+    /* ─── DIVIDER ─── */
+    .ornament-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 0 auto 56px;
+      max-width: 320px;
+    }
+
+    .ornament-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--parchment), transparent);
+    }
+
+    .ornament-diamond {
+      width: 8px; height: 8px;
+      background: var(--gold);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .mission-layout { grid-template-columns: 1fr; gap: 48px; }
+      .modules-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .stats-wrapper { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(1), .stat-item:nth-child(2) { border-bottom: 1px solid var(--cream-3); }
+      .features-grid { grid-template-columns: 1fr; }
+      .cta-box { padding: 48px 32px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .modules-header { flex-direction: column; }
+    }
+
+    @media (max-width: 480px) {
+      section { padding: 72px 20px; }
+      .stats-wrapper { grid-template-columns: 1fr; }
+      .stat-item { border-right: none !important; border-bottom: 1px solid var(--cream-3); }
+      .stat-item:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-logo" href="#">
+        <div class="nav-logo-icon">📚</div>
+        <div class="nav-logo-text">
+          <span class="nav-logo-title">Vemu Library</span>
+          <span class="nav-logo-sub">Est. 2008 · Vemu Institute of Technology</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#mission">About</a></li>
+        <li><a href="#modules">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="signinpage.html" class="btn-ghost" style="text-decoration: none;">Sign Up</a>
+        <a href="signinpage.html" class="btn-primary" style="text-decoration: none;">Login</a>
+        <button type="button" id="themeToggle" class="theme-toggle" title="Toggle Theme" aria-label="Switch light/dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-lines"></div>
+    <div class="hero-ornament"></div>
+    <div class="hero-ornament-2"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Vemu Institute of Technology · Est. 2008
+      </div>
+
+      <h1 class="hero-title">
+        <em>Smart Library</em><br>
+        Management
+      </h1>
+
+      <p class="hero-subtitle">
+        A fully digital platform engineered for seamless book management, student services, and institutional excellence.
+      </p>
+
+      <div class="hero-tags">
+        <span class="hero-tag">Digital Library</span>
+        <span class="hero-tag-sep">·</span>
+        <span class="hero-tag">Automated Management</span>
+        <span class="hero-tag-sep">·</span>
+        <span class="hero-tag">Secure Access</span>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#" class="btn-hero-primary">
+          <span>↗</span> Enter System
+        </a>
+        <a href="#features" class="btn-hero-secondary">
+          Explore Features <span>↓</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <span class="scroll-text">Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <div class="stats-section">
+    <div class="stats-wrapper">
+      <div class="stat-item reveal">
+        <div class="stat-num">50K<sup>+</sup></div>
+        <div class="stat-label">Books Catalogued</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-num">12K<sup>+</sup></div>
+        <div class="stat-label">Active Members</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-num">99.9<sup>%</sup></div>
+        <div class="stat-label">Uptime Guarantee</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">Digital Access</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="features-section" id="features">
+    <div class="section-inner">
+      <div style="text-align:center;margin-bottom:56px;">
+        <div class="section-label" style="justify-content:center;">What We Offer</div>
+        <h2 class="section-title" style="text-align:center;">Core Capabilities</h2>
+        <p class="section-desc" style="margin:0 auto;text-align:center;">
+          Every tool your institution needs — intelligently designed and elegantly delivered.
+        </p>
+      </div>
+
+      <div class="ornament-divider">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-num">01</div>
+          <div class="feature-icon">📖</div>
+          <div class="feature-name">Book Management</div>
+          <p class="feature-desc">Complete cataloguing with ISBN, genre classification, availability tracking, and intelligent search across the entire collection.</p>
+          <div class="feature-corner"></div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-num">02</div>
+          <div class="feature-icon">👨‍🎓</div>
+          <div class="feature-name">Student Portal</div>
+          <p class="feature-desc">Personalized dashboards for borrowing history, renewals, reservations, fines management, and digital resource access.</p>
+          <div class="feature-corner"></div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-num">03</div>
+          <div class="feature-icon">👨‍🏫</div>
+          <div class="feature-name">Faculty Access</div>
+          <p class="feature-desc">Priority reservations, extended borrowing periods, research material requests, and course-linked reading list management.</p>
+          <div class="feature-corner"></div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-num">04</div>
+          <div class="feature-icon">🧑‍💼</div>
+          <div class="feature-name">Librarian Panel</div>
+          <p class="feature-desc">Comprehensive control over acquisitions, circulation, member management, overdue notices, and inventory audits.</p>
+          <div class="feature-corner"></div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-num">05</div>
+          <div class="feature-icon">📊</div>
+          <div class="feature-name">Analytics Dashboard</div>
+          <p class="feature-desc">Real-time insights on circulation trends, popular titles, peak usage patterns, and automated performance reports.</p>
+          <div class="feature-corner"></div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-num">06</div>
+          <div class="feature-icon">🔐</div>
+          <div class="feature-name">Secure Authentication</div>
+          <p class="feature-desc">Role-based access control with encrypted sessions, audit logging, and secure credential management for all users.</p>
+          <div class="feature-corner"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mission-section" id="mission">
+    <div class="mission-bg"></div>
+    <div class="mission-grid-lines"></div>
+    <div class="section-inner">
+      <div class="mission-layout">
+        <div class="mission-left reveal">
+          <div class="section-label">Our Mission</div>
+          <h2 class="mission-title">Built for<br>Academic Excellence</h2>
+          <p class="mission-body">
+            A seamlessly integrated platform designed to transform how Vemu Institute manages its knowledge resources and serves its academic community.
+            <br><br>
+            Our system eliminates manual processes through intelligent automation — from book acquisitions to overdue notifications — freeing librarians to focus on what truly matters: curating an exceptional learning environment.
+          </p>
+          <div class="mission-tags">
+            <span class="mission-tag">☁️ Cloud-Ready Architecture</span>
+            <span class="mission-tag">⚡ Real-Time Sync</span>
+            <span class="mission-tag">👥 Multi-Role Access</span>
+            <span class="mission-tag">📋 Audit Trails</span>
+          </div>
+        </div>
+
+        <div class="mission-right">
+          <div class="mission-card reveal reveal-delay-1">
+            <div class="mission-card-icon">🏛️</div>
+            <div>
+              <div class="mission-card-title">Circulation Management</div>
+              <div class="mission-card-desc">Streamlined check-in/check-out workflows with barcode support, automated reminders, and fine calculation for overdue items.</div>
+            </div>
+          </div>
+
+          <div class="mission-card reveal reveal-delay-2">
+            <div class="mission-card-icon">🗂️</div>
+            <div>
+              <div class="mission-card-title">Digital Catalogue</div>
+              <div class="mission-card-desc">Advanced OPAC with full-text search, filter by author, subject, and year — accessible from any device, anytime.</div>
+            </div>
+          </div>
+
+          <div class="mission-card reveal reveal-delay-3">
+            <div class="mission-card-icon">📨</div>
+            <div>
+              <div class="mission-card-title">Notification Engine</div>
+              <div class="mission-card-desc">Automated email and SMS alerts for due dates, reservation availability, and new acquisitions tailored per user role.</div>
+            </div>
+          </div>
+
+          <div class="mission-card reveal reveal-delay-4">
+            <div class="mission-card-icon">📋</div>
+            <div>
+              <div class="mission-card-title">Report Generation</div>
+              <div class="mission-card-desc">One-click reports covering stock audits, issue statistics, member activity logs, and financial summaries in PDF/Excel.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modules-section" id="modules">
+    <div class="section-inner">
+      <div class="modules-header">
+        <div>
+          <div class="section-label">System Modules</div>
+          <h2 class="section-title">Every Role,<br>Perfectly Served</h2>
+        </div>
+        <p class="section-desc" style="max-width:320px;">
+          Purpose-built modules for every stakeholder in your institution's academic ecosystem.
+        </p>
+      </div>
+
+      <div class="modules-grid">
+        <div class="module-card reveal">
+          <div class="module-icon">🏛️</div>
+          <div class="module-content">
+            <div class="module-title">Circulation Management</div>
+            <p class="module-desc">Streamlined check-in/check-out workflows with barcode support, automated reminders, and fine calculation for overdue items.</p>
+          </div>
+        </div>
+
+        <div class="module-card reveal reveal-delay-1">
+          <div class="module-icon">🗂️</div>
+          <div class="module-content">
+            <div class="module-title">Digital Catalogue</div>
+            <p class="module-desc">Advanced OPAC with full-text search, filter by author, subject, and year — accessible from any device, anytime.</p>
+          </div>
+        </div>
+
+        <div class="module-card reveal reveal-delay-2">
+          <div class="module-icon">📨</div>
+          <div class="module-content">
+            <div class="module-title">Notification Engine</div>
+            <p class="module-desc">Automated email and SMS alerts for due dates, reservation availability, and new acquisitions tailored per user role.</p>
+          </div>
+        </div>
+
+        <div class="module-card reveal reveal-delay-3">
+          <div class="module-icon">📋</div>
+          <div class="module-content">
+            <div class="module-title">Report Generation</div>
+            <p class="module-desc">One-click reports covering stock audits, issue statistics, member activity logs, and financial summaries in PDF/Excel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta-section">
+    <div class="cta-inner">
+      <div class="cta-box reveal">
+        <div class="cta-box-bg"></div>
+        <div class="cta-box-pattern"></div>
+        <div class="cta-content">
+          <div class="cta-label">✦ Get Started Today</div>
+          <h2 class="cta-title">Ready to Modernise<br>Your Library?</h2>
+          <p class="cta-desc">Join thousands of students and faculty already using the system.</p>
+          <div class="cta-actions">
+            <a href="signinpage.html" class="btn-cta-primary">Login to Dashboard ↗</a>
+            <a href="#contact" class="btn-cta-secondary">Contact Admin →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="contact" class="contact-section" style="padding: 80px 32px; background: var(--cream-2);">
+    <div class="section-inner">
+      <h2 style="text-align: center; margin-bottom: 2rem; color: var(--navy);">Contact Us</h2>
+      <div style="max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <div>
+          <h3 style="color: var(--navy); margin-bottom: 1rem;">Library Admin</h3>
+          <p style="color: var(--ink-soft); line-height: 1.6;">Email: librarian@vemu.edu<br>Phone: +91 98765 43210<br>Address: Vemu Institute, Chittoor</p>
+        </div>
+        <div>
+          <h3 style="color: var(--navy); margin-bottom: 1rem;">Technical Support</h3>
+          <p style="color: var(--ink-soft); line-height: 1.6;">Email: support@vemu.edu<br>Hours: Mon-Fri 9AM-5PM<br>Response: &lt;24hrs</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-brand-icon">📚</div>
+        <div>
+          <div class="footer-brand-text">Vemu Library</div>
+          <div class="footer-brand-sub">Vemu Institute of Technology</div>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Support</a>
+      </div>
+
+      <div class="footer-copy">© 2008 Vemu Institute of Technology · All Rights Reserved</div>
+    </div>
+  </footer>
+
+  <script>
+    // ─── Reveal on scroll ───
+    const reveals = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    reveals.forEach(el => observer.observe(el));
+
+    // ─── Navbar scroll effect ───
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) {
+        nav.style.boxShadow = '0 4px 24px rgba(26,20,16,.12)';
+      } else {
+        nav.style.boxShadow = '0 2px 8px rgba(26,20,16,.07)';
+      }
+    });
+
+    // ─── Stat counter animation ───
+    function animateCounter(el, target, suffix) {
+      let start = 0;
+      const duration = 1800;
+      const step = 16;
+      const increment = target / (duration / step);
+      const timer = setInterval(() => {
+        start += increment;
+        if (start >= target) {
+          start = target;
+          clearInterval(timer);
+        }
+        const display = Number.isInteger(target)
+          ? Math.floor(start).toLocaleString()
+          : start.toFixed(1);
+        el.dataset.display = display + suffix;
+      }, step);
+    }
+
+    const statItems = document.querySelectorAll('.stat-item');
+    const statObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const numEl = entry.target.querySelector('.stat-num');
+          if (numEl && !entry.target.dataset.animated) {
+            entry.target.dataset.animated = 'true';
+            const text = numEl.textContent;
+            const match = text.match(/[\d.]+/);
+            if (match) {
+              const val = parseFloat(match[0]);
+              const suffix = text.replace(match[0], '');
+              let sup = numEl.querySelector('sup');
+              numEl.innerHTML = '';
+              if (sup) numEl.appendChild(document.createTextNode(text));
+            }
+          }
+        }
+      });
+    }, { threshold: .5 });
+
+    statItems.forEach(el => statObserver.observe(el));
+
+    // Dark/Light Toggle
+    const toggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      html.setAttribute('data-theme', 'dark');
+      toggle.textContent = '☀️';
+    } else {
+      toggle.textContent = '🌙';
+    }
+
+    toggle.addEventListener('click', () => {
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      toggle.textContent = isDark ? '🌙' : '☀️';
+      toggle.style.transform = isDark ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+  </script>
+  <script src="ai-assistant.js"></script>
+</body>
+</html>

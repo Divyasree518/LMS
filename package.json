@@ -1,0 +1,30 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "100% **Frontend-Only** static web app. No backend, server, or external dependencies required.\r - **Authentication**: localStorage-based signup/login with roles (admin, faculty, librarian, student).\r - **Data**: All books/users/fines stored in browser localStorage.\r - **Features**: Dashboards, book search/borrow, reports, real-time counts (polling).\r - **AI Chat**: Built-in Telugu/English assistant.",
+  "main": "ai-assistant.js",
+  "scripts": {
+    "start": "concurrently \"npm run start --prefix express-backend\" \"npm run start --prefix react-frontend\"",
+    "dev": "concurrently \"npm run dev --prefix express-backend\" \"npm run start --prefix react-frontend\"",
+    "install-all": "npm install && npm install --prefix express-backend && npm install --prefix react-frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Divyasree518/LMS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Divyasree518/LMS/issues"
+  },
+  "homepage": "https://github.com/Divyasree518/LMS#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

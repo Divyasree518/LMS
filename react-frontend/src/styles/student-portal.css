@@ -1,0 +1,164 @@
+/* Student Portal Styles */
+.student-portal {
+  padding-top: 100px;
+  padding: 100px 32px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.portal-header {
+  margin-bottom: 40px;
+}
+
+.portal-header h1 {
+  font-size: 2.2rem;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.portal-header p {
+  color: var(--ink-muted);
+  font-size: 1.1rem;
+}
+
+.portal-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--cream-2);
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+  color: var(--navy);
+  border-bottom-color: var(--gold);
+}
+
+.tab-btn:hover {
+  color: var(--navy);
+}
+
+.borrow-section,
+.borrowed-section {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.books-grid-student {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.book-item-student {
+  background: white;
+  padding: 16px;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.book-item-student:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.book-item-student h4 {
+  color: var(--navy);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.book-item-student p {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.available {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.btn-borrow {
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-borrow:hover {
+  transform: translateY(-2px);
+}
+
+.borrowed-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.borrowed-table thead {
+  background: var(--navy);
+  color: white;
+}
+
+.borrowed-table th {
+  padding: 14px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.borrowed-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--cream-2);
+}
+
+.btn-return {
+  padding: 6px 14px;
+  background: var(--red);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-return:hover {
+  background: #8B2620;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .borrowed-table {
+    font-size: 0.9rem;
+  }
+
+  .borrowed-table th,
+  .borrowed-table td {
+    padding: 8px;
+  }
+}

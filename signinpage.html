@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Authentication | Vemu Library System</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="chat-widget.css">
   <style>
     :root {
       --cream: #FAF7F2; --parchment: #E8DECE; --navy: #1C2B4A;
@@ -18,7 +19,7 @@
     body::before {
       content: ''; position: fixed; inset: 0;
       background-image: linear-gradient(rgba(26, 20, 16, 0.5), rgba(26, 20, 16, 0.5)), 
-     url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=2000');
+                        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=2000');
       background-size: cover; background-position: center; z-index: -1;
     }
 
@@ -82,95 +83,143 @@
         <h1>Create Account</h1>
         <p>Join our academic community today.</p>
         <form onsubmit="handleSignup(event)">
-          <div class="input-group"><label>Full Name</label><input name="name" type="text" placeholder="Full Name" required></div>
-          <div class="input-group"><label>Email Address</label><input name="email" type="email" placeholder="Email" required></div>
-          <div class="input-group"><label>Password</label><input name="password" type="password" placeholder="••••••••" required></div>
-          <div class="input-group"><label>Role</label>
-            <select name="role" required>
-              <option value="">Select Role</option>
+          <div class="input-group"><label>Full Name</label><input type="text" id="signupName" placeholder="Full Name" required></div>
+          <div class="input-group"><label>Email Address</label><input type="email" id="signupEmail" placeholder="Email" required></div>
+          <div class="input-group">
+            <label>Role</label>
+            <select id="signupRole" required>
               <option value="student">Student</option>
               <option value="faculty">Faculty</option>
               <option value="librarian">Librarian</option>
               <option value="admin">Administrator</option>
             </select>
           </div>
+          <div class="input-group"><label>Password</label><input type="password" id="signupPass" placeholder="••••••••" required></div>
           <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
-        <div class="switch-text">Already have an account? <a href="login.html">Login here</a></div>
+        <div class="switch-text">Already have an account? <a onclick="toggleForm('login')">Login here</a></div>
       </div>
+
+      <div id="loginForm" class="form-content hidden">
+        <h1>Welcome Back</h1>
+        <p>Enter your credentials to access the library.</p>
+        <form id="actualLoginForm" onsubmit="handleLogin(event)">
+          <div class="input-group">
+            <label>Library ID / Email</label>
+            <input type="text" id="userEmail" placeholder="Enter your ID" required>
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="userPass" placeholder="••••••••" required>
+          </div>
+          <button type="submit" id="loginBtn" class="btn btn-primary">Login to Dashboard</button>
+        </form>
+        <div class="switch-text">New User? <a onclick="toggleForm('signup')">Create an account</a></div>
+      </div>
+
+    </div>
   </div>
 
-<script>
-    // SIGNUP LOGIC
-    function handleSignup(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const name = formData.get('name');
-        const email = formData.get('email');
-        const password = formData.get('password');
-        const role = formData.get('role');
-
-        let users = JSON.parse(localStorage.getItem('vemuUsers')) || [];
-        
-        if (users.find(u => u.email === email)) {
-            alert('Email already registered!');
-            return;
-        }
-
-        // Store user with their specific role
-        users.push({ name, email, password: btoa(password), role });
-        localStorage.setItem('vemuUsers', JSON.stringify(users));
-
-        const toast = document.getElementById('successToast');
-        toast.classList.add('show');
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 2000);
+  <script src="js/api-service.js"></script>
+  <script>
+    // Initialize API Service check
+    if (!window.apiService) {
+        console.error('API Service not loaded!');
     }
 
-    // LOGIN LOGIC (Update this in your login.html file)
-    function handleLogin(event) {
+    // Switches between Login and Signup UI
+    function toggleForm(type) {
+        document.getElementById('loginForm').classList.toggle('hidden', type !== 'login');
+        document.getElementById('signupForm').classList.toggle('hidden', type === 'login');
+    }
+
+    function showToast(message, success = true) {
+        const toast = document.getElementById('successToast');
+        toast.textContent = success ? '✓ ' + message : '✗ ' + message;
+        toast.style.background = success ? 'var(--success)' : '#e74c3c';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // Backend signup
+    async function handleSignup(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const role = document.getElementById('signupRole').value;
+        const password = document.getElementById('signupPass').value;
+
+        const btn = event.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Creating...';
+
+        try {
+            const result = await apiService.auth.signup({
+                username: email.split('@')[0], // Use part of email as username for demo
+                name,
+                email,
+                password,
+                role
+            });
+
+            showToast('Account created successfully! Please login.', true);
+            setTimeout(() => {
+                toggleForm('login');
+                document.getElementById('loginRole').value = role;
+                document.getElementById('userEmail').value = email;
+            }, 2000);
+        } catch (error) {
+            showToast(error.message || 'Signup failed!', false);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Sign Up';
+        }
+    }
+
+    // Backend login
+    async function handleLogin(event) {
         event.preventDefault();
         
-        const emailInput = document.querySelector('input[type="email"]').value;
-        const passwordInput = btoa(document.querySelector('input[type="password"]').value);
-        const selectedRole = document.getElementById('loginRole').value;
+        const identifier = document.getElementById('userEmail').value.trim();
+        const password = document.getElementById('userPass').value;
+        
+        const loginBtn = document.getElementById('loginBtn');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging in...';
+        
+        try {
+            // Identifier can be username or email depending on how backend is set up
+            // Here we assume identifier is the username (which we set to email prefix in signup)
+            // Or just pass it as is
+            const result = await apiService.auth.login({
+                username: identifier, 
+                password
+            });
 
-        // 1. Get stored users
-        const users = JSON.parse(localStorage.getItem('vemuUsers')) || [];
-
-        // 2. Find the specific user
-        const user = users.find(u => u.email === emailInput && u.password === passwordInput);
-
-        if (!user) {
-            alert("Invalid email or password.");
-            return;
-        }
-
-        // 3. Verify Role Match
-        if (user.role !== selectedRole) {
-            alert(`Access Denied: Your account is registered as ${user.role}, not ${selectedRole}.`);
-            return;
-        }
-
-        // 4. Proceed with Redirect
-        switch (user.role) {
-            case 'admin':
-                window.location.href = "adminstrator.html";
-                break;
-            case 'student':
-                window.location.href = "studentportal.html";
-                break;
-            case 'librarian':
-                window.location.href = "libraryDashboard.html";
-                break;
-            case 'faculty':
-                window.location.href = "faculty.html";
-                break;
-            default:
-                alert("Role not recognized.");
+            showToast('Login successful! Redirecting...', true);
+            
+            setTimeout(() => {
+                let redirect = '';
+                const userRole = result.user.role;
+                switch(userRole) {
+                    case 'admin': redirect = 'adminstrator.html'; break;
+                    case 'student': redirect = 'student_portal/studentportal.html'; break;
+                    case 'librarian': redirect = 'libraryDashboard.html'; break;
+                    case 'faculty': redirect = 'student_portal/faculty.html'; break;
+                    default: redirect = 'index.html';
+                }
+                window.location.href = redirect;
+            }, 1500);
+        } catch (error) {
+            showToast(error.message || 'Invalid credentials or role!', false);
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login to Dashboard';
         }
     }
 </script>
+
+  <script src="ai-assistant.js"></script>
 </body>
 </html>

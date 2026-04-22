@@ -1,0 +1,87 @@
+/* Signup Page Styles */
+.signup-page {
+  padding-top: 68px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--cream);
+}
+
+.signup-container {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  padding: 50px 40px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  margin: 20px;
+}
+
+.signup-container h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--navy);
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.signup-container p {
+  color: #666;
+  margin-bottom: 35px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.btn-signup {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: white;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: 0.4s;
+  margin-top: 15px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-signup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(28, 43, 74, 0.35);
+}
+
+.btn-signup:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.success-message {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.login-link a {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
