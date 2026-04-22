@@ -271,9 +271,16 @@
                 </div>
                 <div class="card">
                     <h1>Return <em>System</em></h1>
+                    <label>Borrower ID (Email/Username)</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="memberIdReturn" placeholder="Enter ID to find books" style="margin-bottom: 0;">
+                        <button class="btn btn-primary" style="width: auto; margin-bottom: 0;" onclick="loadUserBorrowed()">Find</button>
+                    </div>
                     <label>Select Book to Return</label>
-                    <select id="returnSelect"></select>
-                    <button class="btn btn-primary" onclick="handleReturn()">Confirm Return</button>
+                    <select id="returnSelect">
+                        <option value="">Search for borrower first...</option>
+                    </select>
+                    <button class="btn btn-primary" id="returnBtn" onclick="handleReturn()">Confirm Return</button>
                 </div>
             </div>
         </div>
@@ -368,13 +375,33 @@
                 const iSel = document.getElementById('issueSelect');
                 const rSel = document.getElementById('returnSelect');
                 if (iSel) iSel.innerHTML = books.filter(b => b.available > 0).map(b => `<option value="${b._id}">${b.title}</option>`).join('');
-                if (rSel) rSel.innerHTML = books.filter(b => b.available < b.total).map(b => `<option value="${b._id}">${b.title}</option>`).join('');
-
-                // History (Placeholder)
-                document.getElementById('logBody').innerHTML = logs.map(l => `
-                <tr><td>${l.date}</td><td>${l.member}</td><td>${l.title}</td><td>${l.type}</td><td>${l.fine}</td></tr>
-            `).reverse().join('');
+                
+                // Note: returnSelect is now handled by loadUserBorrowed
             }
+
+            window.loadUserBorrowed = async function() {
+                const mid = document.getElementById('memberIdReturn').value;
+                if (!mid) return alert("Please enter a Borrower ID");
+
+                try {
+                    const result = await apiService.request(`/books/user/${mid}`);
+                    const records = result.data || [];
+                    const rSel = document.getElementById('returnSelect');
+                    
+                    if (records.length === 0) {
+                        rSel.innerHTML = '<option value="">No active borrows found</option>';
+                        return;
+                    }
+
+                    rSel.innerHTML = records.map(r => `
+                        <option value="${r._id}" data-bookid="${r.bookId._id}">
+                            ${r.bookId.title} (Due: ${new Date(r.dueDate).toLocaleDateString()})
+                        </option>
+                    `).join('');
+                } catch (error) {
+                    alert("Error finding books: " + error.message);
+                }
+            };
 
             window.handleIssue = async function() {
                 const mid = document.getElementById('memberId').value;
@@ -391,9 +418,22 @@
             };
 
             window.handleReturn = async function() {
-                const bid = document.getElementById('returnSelect').value;
-                if (!bid) return;
-                alert("Please select the specific borrow record in the full implementation.");
+                const rSel = document.getElementById('returnSelect');
+                const borrowRecordId = rSel.value;
+                const option = rSel.options[rSel.selectedIndex];
+                const bookId = option ? option.dataset.bookid : null;
+
+                if (!borrowRecordId || !bookId) return alert("Please select a book to return");
+
+                try {
+                    await apiService.books.return(bookId, borrowRecordId);
+                    alert("Book returned successfully!");
+                    document.getElementById('memberIdReturn').value = "";
+                    rSel.innerHTML = '<option value="">Select borrower first...</option>';
+                    await loadData();
+                } catch (error) {
+                    alert("Error: " + error.message);
+                }
             };
 
             window.calculateFine = function() {
