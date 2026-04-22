@@ -16,20 +16,19 @@ const Login = ({ onNavigate }) => {
     if (result.success) {
       const { role } = result.user;
       
-      // Handle legacy librarian dashboard
-      if (role === 'librarian') {
-        window.location.assign('/libraryDashboard.html');
-        return;
-      }
-
-      // Handle React-based dashboards
+      // Handle redirects to HTML dashboards
       const dashboardMap = {
-        admin: '/admin',
-        faculty: '/faculty',
-        student: '/student-portal'
+        admin: '/administrator.html',
+        faculty: '/faculty.html',
+        student: '/studentportal.html',
+        librarian: '/libraryDashboard.html'
       };
 
-      onNavigate(dashboardMap[role] || '/');
+      if (dashboardMap[role]) {
+        window.location.assign(dashboardMap[role]);
+      } else {
+        onNavigate('/');
+      }
     } else {
       setLoginError(result.error);
     }
