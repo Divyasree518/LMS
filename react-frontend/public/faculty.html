@@ -399,15 +399,17 @@
     <nav class="navbar">
         <div class="navbar-brand">Vemu Library — Faculty Recommendations</div>
         <div class="nav-links">
-            <button type="button" class="nav-btn" onclick="window.location.href='faculty_dashboard.html'">Catalog</button>
-            <button type="button" class="nav-btn primary" onclick="window.location.href='faculty.html'">Recommend</button>
+            <button type="button" class="nav-btn" id="navCatalog" onclick="window.location.href='faculty_dashboard.html'">Catalog</button>
+            <button type="button" class="nav-btn primary" id="navRecommend" onclick="showView('recommend')">Recommend</button>
+            <button type="button" class="nav-btn" id="navProfile" onclick="showView('profile')">Profile</button>
             <button type="button" class="nav-btn" onclick="apiService.auth.logout()">Logout</button>
         </div>
     </nav>
 
     <main class="main">
-        <h1 class="page-title">Book recommendation system</h1>
-        <p class="page-sub">Suggest titles for the library collection. Your list is saved on this device until you clear it.</p>
+        <div id="recommendView">
+            <h1 class="page-title">Book recommendation system</h1>
+            <p class="page-sub">Suggest titles for the library collection. Your list is saved on this device until you clear it.</p>
 
         <section class="card" aria-labelledby="form-heading">
             <h2 id="form-heading">Submit a recommendation</h2>
@@ -482,6 +484,34 @@
             <h2 id="list-heading">Recommended books</h2>
             <div id="recommendationsList" class="recommendations-grid" role="list"></div>
         </section>
+        </div>
+
+        <div id="profileView" style="display: none;">
+            <h1 class="page-title">Faculty Profile</h1>
+            <p class="page-sub">Your personal and professional login details.</p>
+            
+            <section class="card">
+                <h2>Account Information</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                        <span style="font-weight: 600; color: var(--navy);">Full Name</span>
+                        <span id="profName">...</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                        <span style="font-weight: 600; color: var(--navy);">Email Address</span>
+                        <span id="profEmail">...</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                        <span style="font-weight: 600; color: var(--navy);">Department</span>
+                        <span id="profDept">...</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                        <span style="font-weight: 600; color: var(--navy);">Role</span>
+                        <span id="profRole">Faculty</span>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
@@ -704,6 +734,36 @@
                 showToast('Recommendation updated.', true);
             });
 
+            window.showView = function(viewId) {
+                const recView = document.getElementById('recommendView');
+                const profView = document.getElementById('profileView');
+                const navRec = document.getElementById('navRecommend');
+                const navProf = document.getElementById('navProfile');
+
+                if (viewId === 'recommend') {
+                    recView.style.display = 'block';
+                    profView.style.display = 'none';
+                    navRec.classList.add('primary');
+                    navProf.classList.remove('primary');
+                } else {
+                    recView.style.display = 'none';
+                    profView.style.display = 'block';
+                    navRec.classList.remove('primary');
+                    navProf.classList.add('primary');
+                    populateProfile();
+                }
+            };
+
+            function populateProfile() {
+                const user = apiService.auth.getCurrentUser();
+                if (user) {
+                    document.getElementById('profName').textContent = user.username || user.name || 'N/A';
+                    document.getElementById('profEmail').textContent = user.email || (user.username + '@vemu.org') || 'N/A';
+                    document.getElementById('profDept').textContent = user.department || 'Library/Faculty';
+                    document.getElementById('profRole').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+                }
+            }
+
             function init() {
                 if (!apiService.auth.isAuthenticated()) {
                     window.location.href = 'login.html';
@@ -712,6 +772,7 @@
                 recommendations = loadFromStorage();
                 fillEditDepartmentSelect('CSE');
                 renderList();
+                populateProfile();
             }
 
             window.addEventListener('load', init);
