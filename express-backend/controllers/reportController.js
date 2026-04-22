@@ -167,10 +167,13 @@ const reportController = {
       }
 
       const report = new Report({
-        type,
-        startDate: startDate ? new Date(startDate) : new Date(),
-        endDate: endDate ? new Date(endDate) : new Date(),
-        data: {}
+        type: type || 'summary',
+        period: {
+          startDate: startDate ? new Date(startDate) : new Date(),
+          endDate: endDate ? new Date(endDate) : new Date()
+        },
+        data: req.body,
+        generatedBy: req.body.generatedBy
       });
 
       await report.save();

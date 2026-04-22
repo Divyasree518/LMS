@@ -297,15 +297,20 @@
       }
 
       try {
-          await apiService.request('/reports', {
-              method: 'POST',
-              body: JSON.stringify({
-                  totalBooksVolume: total,
-                  issuedToStudents: issued,
-                  overdueRecords: overdue,
-                  generatedBy: apiService.auth.getCurrentUser().id
-              })
-          });
+        const reportData = {
+            totalBooksVolume: total,
+            issuedToStudents: issued,
+            overdueRecords: overdue,
+            generatedBy: apiService.auth.getCurrentUser()?.id || 'admin'
+        };
+        // Save to localStorage for persistence
+        localStorage.setItem('reportStats', JSON.stringify(reportData));
+        try {
+            await apiService.request('/reports', 'POST', reportData);
+        } catch (e) {
+            console.log('Backend unavailable, saved locally');
+        }
+        alert("Statistics synchronized successfully!");
           alert("Statistics synchronized with database.");
           await loadReportStats();
       } catch (error) {

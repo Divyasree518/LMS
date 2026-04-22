@@ -227,7 +227,9 @@
     async function loadReportStats() {
       try {
           const result = await apiService.request('/reports');
-          const stats = Array.isArray(result) ? result[0] : (result.data || result);
+          const reports = result.data || result;
+          const latestReport = Array.isArray(reports) ? reports[0] : null;
+          const stats = latestReport ? latestReport.data : null;
           
           if (!stats) {
             // Fallback for demo
@@ -297,15 +299,20 @@
       }
 
       try {
-          await apiService.request('/reports', {
-              method: 'POST',
-              body: JSON.stringify({
-                  totalBooksVolume: total,
-                  issuedToStudents: issued,
-                  overdueRecords: overdue,
-                  generatedBy: apiService.auth.getCurrentUser().id
-              })
-          });
+          const reportData = {
+              type: 'summary',
+              totalBooksVolume: total,
+              issuedToStudents: issued,
+              overdueRecords: overdue,
+              generatedBy: apiService.auth.getCurrentUser().id
+          };
+
+          // Save to database
+          await apiService.request('/reports', 'POST', reportData);
+          
+          // Also save to localStorage for immediate sync/fallback
+          localStorage.setItem('reportStats', JSON.stringify(reportData));
+
           alert("Statistics synchronized with database.");
           await loadReportStats();
       } catch (error) {
