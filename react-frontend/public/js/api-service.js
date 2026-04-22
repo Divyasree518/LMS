@@ -92,6 +92,10 @@ const apiService = {
             return await apiService.request(`/books/${bookId}/return`, 'POST', { borrowRecordId });
         },
 
+        async getBorrowedByUser(userId) {
+            return await apiService.request(`/books/borrowed/${userId}`);
+        },
+
         async create(bookData) {
             return await apiService.request('/books', 'POST', bookData);
         },

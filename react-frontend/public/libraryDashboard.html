@@ -384,7 +384,7 @@
                 if (!mid) return alert("Please enter a Borrower ID");
 
                 try {
-                    const result = await apiService.request(`/books/user/${mid}`);
+                    const result = await apiService.books.getBorrowedByUser(mid);
                     const records = result.data || [];
                     const rSel = document.getElementById('returnSelect');
                     
