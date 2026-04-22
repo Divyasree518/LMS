@@ -402,7 +402,7 @@
             <button type="button" class="nav-btn" id="navCatalog" onclick="window.location.href='faculty_dashboard.html'">Catalog</button>
             <button type="button" class="nav-btn primary" id="navRecommend" onclick="showView('recommend')">Recommend</button>
             <button type="button" class="nav-btn" id="navProfile" onclick="showView('profile')">Profile</button>
-            <button type="button" class="nav-btn" onclick="apiService.auth.logout()">Logout</button>
+            <button type="button" class="nav-btn" onclick="apiService.auth.logout(); window.location.href='login.html';">Logout</button>
         </div>
     </nav>
 
@@ -434,11 +434,6 @@
                         <option value="Mechanical">Mechanical</option>
                         <option value="Civil">Civil</option>
                         <option value="MBA">MBA</option>
-                        <option value="Science">Science</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Chemistry">Chemistry</option>
-                        <option value="English">English</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>
@@ -469,11 +464,6 @@
                         <option value="Mechanical">Mechanical</option>
                         <option value="Civil">Civil</option>
                         <option value="MBA">MBA</option>
-                        <option value="Science">Science</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Chemistry">Chemistry</option>
-                        <option value="English">English</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>

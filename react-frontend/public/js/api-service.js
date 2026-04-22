@@ -61,7 +61,7 @@ const apiService = {
         logout() {
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
-            window.location.href = '/login.html';
+            window.location.href = 'login.html';
         },
 
         getCurrentUser() {

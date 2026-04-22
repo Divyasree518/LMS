@@ -16,7 +16,7 @@
 - [x] **Step 7**: Verify no JS console errors and mark complete ✅
 
 
-**Current Status**: ✅ Fixed Reports.html fetch error + data entry. Live server reloads automatically.
+**Current Status**: ✅ Added Recommendation System nav link in student_portal/faculty.html navbar. Links to full rec system page.
 
 
 

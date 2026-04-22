@@ -834,6 +834,7 @@
         </div>
     </div>
 
+    <script src="js/api-service.js"></script>
     <script>
         // Faculty Data
         let faculty = {
@@ -1303,8 +1304,7 @@
         });
 
         document.getElementById("logoutBtn").addEventListener("click", () => {
-            showPopup("Logged Out", "You have successfully logged out.", "info");
-            switchPage('home');
+            apiService.auth.logout();
         });
 
         document.getElementById("searchBtn").addEventListener("click", () => renderHome());
