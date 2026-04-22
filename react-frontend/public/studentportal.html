@@ -138,8 +138,59 @@
             try {
                 const res = await apiService.books.getBorrowedByUser(profile.id);
                 borrowedRecords = res.data;
+                checkDeadlines();
                 renderMyBooks();
             } catch (e) { console.error(e); }
+        }
+
+        function checkDeadlines() {
+            notifications = [];
+            const now = new Date();
+            borrowedRecords.forEach(r => {
+                const dueDate = new Date(r.dueDate);
+                const diffTime = dueDate - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 0) {
+                    notifications.push({
+                        title: "Book Overdue!",
+                        message: `The book "${r.bookId.title}" was due on ${dueDate.toLocaleDateString()}. Please return it immediately to avoid fines.`,
+                        type: "danger"
+                    });
+                } else if (diffDays <= 2) {
+                    notifications.push({
+                        title: "Due Soon",
+                        message: `The book "${r.bookId.title}" is due in ${diffDays} day(s).`,
+                        type: "warning"
+                    });
+                }
+            });
+            updateBadge();
+            renderNotifications();
+        }
+
+        function updateBadge() {
+            const badge = document.getElementById('notifBadge');
+            if (notifications.length > 0) {
+                badge.style.display = 'inline-block';
+                badge.innerText = notifications.length;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList');
+            if (notifications.length === 0) {
+                container.innerHTML = "<p style='color: #666;'>No new alerts.</p>";
+                return;
+            }
+            container.innerHTML = notifications.map(n => `
+                <div style="background: ${n.type === 'danger' ? '#fee2e2' : '#fef3c7'}; padding: 15px 20px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid ${n.type === 'danger' ? '#dc2626' : '#d97706'};">
+                    <div style="font-weight: bold; color: #0a1a2f;">${n.title}</div>
+                    <div style="font-size: 0.9rem; color: #4b5563; margin-top: 4px;">${n.message}</div>
+                </div>
+            `).join('');
         }
 
         async function returnBook(bookId, recordId) {
