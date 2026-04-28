@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth';
+import { useAuthContext } from './context/AuthContext';
 
 // Pages
 import Home from './pages/Home';
@@ -11,11 +11,12 @@ import Reports from './pages/Reports';
 import StudentPortal from './pages/StudentPortal';
 import Faculty from './pages/Faculty';
 import Admin from './pages/Admin';
+import Librarian from './pages/Librarian';
+import Backup from './pages/Backup';
 
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import AIAssistant from './components/AIAssistant';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Styles
@@ -24,7 +25,7 @@ import './styles/globals.css';
 const AppContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthContext();
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -36,7 +37,9 @@ const AppContent = () => {
 
   return (
     <div className="app">
-      <Navbar user={user} onLogout={handleLogout} onNavigate={handleNavigate} />
+      {location.pathname === '/' && (
+        <Navbar user={user} onLogout={handleLogout} onNavigate={handleNavigate} />
+      )}
 
       <main className="main-content">
         <Routes>
@@ -44,7 +47,6 @@ const AppContent = () => {
           <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
           <Route path="/signup" element={<Signup onNavigate={handleNavigate} />} />
           <Route path="/books" element={<Books user={user} />} />
-          <Route path="/reports" element={<Reports user={user} />} />
           
           <Route
             path="/student-portal"
@@ -72,11 +74,37 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+          
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'librarian']}>
+                <Reports user={user} />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/librarian"
+            element={
+              <ProtectedRoute allowedRoles={['librarian', 'admin']}>
+                <Librarian user={user} />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/backup"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Backup user={user} />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
 
       {location.pathname !== '/' && <Footer />}
-      <AIAssistant />
     </div>
   );
 };

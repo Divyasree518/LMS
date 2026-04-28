@@ -38,10 +38,17 @@ const Home = ({ user, onNavigate }) => {
       onNavigate('/login');
       return;
     }
-    if (user.role === 'student') window.location.assign('/student_dashboard.html');
-    else if (user.role === 'faculty') window.location.assign('/faculty_dashboard.html');
-    else if (user.role === 'admin') window.location.assign('/admin_dashboard.html');
-    else onNavigate('/login');
+    const rolePath = {
+      student: '/student-portal',
+      faculty: '/faculty',
+      admin: '/admin',
+      librarian: '/librarian'
+    }[user.role];
+    if (rolePath) {
+      onNavigate(rolePath);
+    } else {
+      onNavigate('/login');
+    }
   };
 
   return (

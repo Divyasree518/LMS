@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuthContext } from '../context/AuthContext';
 
 /**
  * A component that protects routes by checking authentication status
@@ -12,7 +12,7 @@ import { useAuth } from '../hooks/useAuth';
  * @returns {React.ReactNode} The rendered component or a redirection.
  */
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuthContext();
 
   if (loading) {
     return <div className="loading-spinner">Loading...</div>;

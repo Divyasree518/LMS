@@ -1,0 +1,155 @@
+:root {
+  --navy: #1C2B4A;
+  --navy-dark: #121d33;
+  --gold: #C8973A;
+  --cream: #FAF7F2;
+  --white: #FFFFFF;
+  --success: #20e170;
+}
+
+.backup-page {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+  padding: 40px 20px;
+  border-right: 1px solid rgba(200, 151, 58, 0.2);
+}
+
+.sidebar h3 {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--cream);
+  text-align: center;
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  padding: 15px;
+  border-radius: 10px;
+  transition: 0.3s;
+  margin-bottom: 5px;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.backup-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.backup-card h1 {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--navy);
+  margin-bottom: 10px;
+}
+
+.backup-card > p {
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.action-box {
+  border: 2px dashed #ddd;
+  padding: 40px;
+  border-radius: 15px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.action-box:hover {
+  border-color: var(--gold);
+  background: var(--cream);
+}
+
+.action-box i {
+  font-size: 3rem;
+  color: var(--navy);
+  margin-bottom: 20px;
+}
+
+.btn-execute {
+  background: var(--navy);
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.btn-execute:hover {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+/* Hidden file input */
+#fileInput {
+  display: none;
+}
+
+/* Toast notification */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--navy);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  border-left: 5px solid var(--gold);
+  display: none;
+  animation: slideUp 0.5s;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

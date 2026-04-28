@@ -103,8 +103,65 @@
             const user = apiService.auth.getCurrentUser();
             profile = { name: user.name || user.username, email: user.email, id: user.id };
             await loadBooks();
+            await loadNotifications();
+            updateNotificationBadge();
             renderHome();
             renderProfile();
+        }
+
+        async function loadNotifications() {
+            try {
+                const res = await apiService.books.getBorrowedByUser(profile.id);
+                notifications = res.data || [];
+            } catch (e) {
+                console.error('Load notifications error:', e);
+                notifications = [];
+            }
+        }
+
+        function diffDays(date1, date2) {
+            const d1 = new Date(date1);
+            const d2 = new Date(date2);
+            const diffTime = Math.abs(d2 - d1);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function updateNotificationBadge() {
+            const overdueCount = notifications.filter(record => {
+                if (record.status === 'returned') return false;
+                const daysOverdue = diffDays(record.dueDate, new Date());
+                return daysOverdue > 0;
+            }).length;
+            const badge = document.getElementById('notifBadge');
+            badge.textContent = overdueCount;
+            badge.style.display = overdueCount > 0 ? 'inline' : 'none';
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationsList');
+            if (notifications.length === 0) {
+                list.innerHTML = '<p>No notifications</p>';
+                return;
+            }
+            list.innerHTML = notifications.map(record => {
+                const bookTitle = record.bookId?.title || 'Unknown Book';
+                const daysOverdue = diffDays(record.dueDate, new Date());
+                const fine = Math.max(0, daysOverdue) * 1; // ₹1 per day
+                const isOverdue = daysOverdue > 0 && record.status !== 'returned';
+                const borrowStr = new Date(record.borrowDate).toLocaleDateString();
+                const dueStr = new Date(record.dueDate).toLocaleDateString();
+                const returnStr = record.returnDate ? new Date(record.returnDate).toLocaleDateString() : 'Pending';
+                return `
+                    <div style="padding: 15px; margin-bottom: 12px; border-left: 5px solid ${isOverdue ? '#d9534f' : '#d4af37'}; background: ${isOverdue ? '#fff5f5' : '#f8f9ff'}; border-radius: 8px;">
+                        <h4 style="color: ${isOverdue ? '#d9534f' : '#0a1a2f'}">${bookTitle}</h4>
+                        <p><strong>Borrow Date:</strong> ${borrowStr}</p>
+                        <p><strong>Due Date:</strong> ${dueStr}</p>
+                        <p><strong>Return Date:</strong> ${returnStr}</p>
+                        <p><strong>Fine:</strong> ₹${fine}</p>
+                        ${isOverdue ? '<p style="color: #d9534f; font-weight: bold;">OVERDUE! Please return soon.</p>' : ''}
+                    </div>
+                `;
+            }).join('');
         }
 
         async function loadBooks() {
@@ -116,10 +173,21 @@
 
         async function borrow(id) {
             try {
+                const book = books.find(b => b._id === id);
+                const borrowDate = new Date().toLocaleDateString();
+                const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString();
                 await apiService.books.borrow(id, profile.id);
-                showPopup("Success", "Book borrowed successfully", "✅");
+                showPopup("Book Borrowed!", `
+                    Book: ${book.title}<br>
+                    Borrow Date: ${borrowDate}<br>
+                    Due Date: ${dueDate} (7 days)<br>
+                    Return Date: Pending<br>
+                    Current Fine: ₹0
+                `, "✅");
                 await loadBooks();
+                await loadNotifications();
                 renderHome();
+                updateNotificationBadge();
             } catch (e) { showPopup("Error", e.message, "❌"); }
         }
 
@@ -152,8 +220,12 @@
         document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-                document.getElementById(btn.dataset.page + 'Page').classList.add('active-page');
+                const pageId = btn.dataset.page + 'Page';
+                document.getElementById(pageId).classList.add('active-page');
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i === btn));
+                if (btn.dataset.page === 'notifications') {
+                    renderNotifications();
+                }
             };
         });
 

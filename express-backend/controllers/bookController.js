@@ -164,10 +164,18 @@ const bookController = {
         return res.status(404).json({ error: 'Book not found' });
       }
 
-      // Find and update borrow record
-      const record = await BorrowRecord.findById(borrowRecordId || req.body.recordId);
+      let record;
+
+      if (borrowRecordId) {
+        // If borrowRecordId is provided, use it
+        record = await BorrowRecord.findById(borrowRecordId);
+      } else {
+        // Otherwise, find the most recent unreturned borrow record for this book
+        record = await BorrowRecord.findOne({ bookId, status: 'borrowed' }).sort({ borrowDate: -1 });
+      }
+
       if (!record) {
-        return res.status(404).json({ error: 'Borrow record not found' });
+        return res.status(404).json({ error: 'No active borrow record found for this book' });
       }
 
       record.returnDate = new Date();
@@ -175,8 +183,8 @@ const bookController = {
       await record.save();
 
       // Update book availability
-      book.available++;
-      book.borrowed--;
+      book.available = Math.min(book.total, book.available + 1);
+      book.borrowed = Math.max(0, book.borrowed - 1);
       await book.save();
 
       res.json({
@@ -184,6 +192,18 @@ const bookController = {
         message: 'Book returned successfully',
         data: book
       });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  getAllBorrowRecords: async (req, res) => {
+    try {
+      const records = await BorrowRecord.find()
+        .populate('bookId', 'title author')
+        .populate('userId', 'username name role')
+        .sort({ borrowDate: -1 });
+      res.json({ success: true, count: records.length, data: records });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

@@ -50,7 +50,7 @@ const Navbar = ({ user, onLogout, onNavigate }) => {
 
   const handleLogout = async () => {
     await onLogout();
-    window.location.href = '/login';
+    onNavigate('/login');
   };
 
   const navAnchor = (id, label) => (
@@ -121,10 +121,10 @@ const Navbar = ({ user, onLogout, onNavigate }) => {
           )}
           {user?.role === 'librarian' && (
             <a
-              href="/libraryDashboard.html"
+              href="/librarian"
               onClick={(e) => {
                 e.preventDefault();
-                window.location.assign('/libraryDashboard.html');
+                onNavigate('/librarian');
                 setMobileMenuOpen(false);
               }}
             >

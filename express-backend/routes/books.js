@@ -4,6 +4,7 @@ const bookController = require('../controllers/bookController');
 
 // Book routes
 router.get('/', bookController.getAllBooks);
+router.get('/records', bookController.getAllBorrowRecords);
 router.get('/:id', bookController.getBookById);
 router.get('/category/:category', bookController.getBooksByCategory);
 router.post('/', bookController.createBook);

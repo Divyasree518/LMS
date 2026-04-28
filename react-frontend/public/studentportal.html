@@ -73,7 +73,9 @@
 
         <div id="notificationsPage" class="page">
             <div class="card-elegant">
-                <h2>Notifications</h2>
+                <h2>Notifications 
+                    <button id="clearAllBtn" class="btn-gold" style="float:right; padding:8px 16px; font-size:0.9rem;">Clear All</button>
+                </h2>
                 <div id="notificationsList" style="margin-top:20px"></div>
             </div>
         </div>
@@ -86,7 +88,7 @@
         </div>
     </div>
 
-    <script src="js/api-service.js"></script>
+    <script src="../js/api-service.js"></script>
     <script>
         function showPopup(title, message, icon) {
             const overlay = document.createElement('div');
@@ -107,8 +109,67 @@
         let notifications = [];
         let borrowedRecords = [];
 
+        function diffDays(dueDateStr) {
+            const now = new Date();
+            const due = new Date(dueDateStr);
+            return Math.floor((due - now) / (1000 * 60 * 60 * 24));
+        }
+
+        function checkDeadlines() {
+            // Load existing notifications
+            const saved = localStorage.getItem('notifications');
+            notifications = saved ? JSON.parse(saved) : [];
+            notifications = notifications.filter(n => n.persist !== false); // Keep persistent ones
+            borrowedRecords.forEach(r => {
+                const book = r.bookId || {};
+                const days = diffDays(r.dueDate);
+                if (days < 0) {
+                    const fine = Math.abs(days) * 1;
+                    notifications.push({
+                        title: "Book Overdue!",
+                        message: `${book.title || 'Book'} is overdue by ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''}. Fine: ₹${fine}`,
+                        fine: fine,
+                        type: 'danger',
+                        date: new Date().toLocaleDateString()
+                    });
+                } else if (days <= 2 && days > 0) {
+                    notifications.push({
+                        title: "Due Soon",
+                        message: `${book.title || 'Book'} due in ${days} day${days !== 1 ? 's' : ''}.`,
+                        type: 'warning',
+                        date: new Date().toLocaleDateString()
+                    });
+                }
+            });
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notifBadge');
+            if (notifications.length > 0) {
+                badge.style.display = 'inline-block';
+                badge.innerText = notifications.length;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList');
+            if (notifications.length === 0) {
+                container.innerHTML = "<p style='color: #666; text-align: center; padding: 20px;'>No new alerts.</p>";
+                return;
+            }
+            container.innerHTML = notifications.map(n => `
+                <div style="background: ${n.type === 'danger' ? '#fee2e2' : n.type === 'warning' ? '#fef3c7' : n.type === 'success' ? '#ecfdf5' : '#f0f9ff'}; padding: 15px 20px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid ${n.type === 'danger' ? '#dc2626' : n.type === 'warning' ? '#d97706' : n.type === 'success' ? '#10b981' : '#0ea5e9'};">
+                    <div style="font-weight: bold; color: ${n.type === 'danger' ? '#dc2626' : n.type === 'warning' ? '#d97706' : n.type === 'success' ? '#10b981' : '#0ea5e9'}; margin-bottom: 5px;">${n.title}</div>
+                    <div style="color: #374151; margin-bottom: 5px;">${n.message}${n.fine ? ` (Fine: ₹${n.fine})` : ''}</div>
+                    <div style="font-size: 0.85rem; color: #6b7280;">${n.date}</div>
+                </div>
+            `).join('');
+        }
+
         async function init() {
-            if (!apiService.auth.isAuthenticated()) { window.location.href = 'login.html'; return; }
+            if (!apiService.auth.isAuthenticated()) { window.location.href = '../login.html'; return; }
             const user = apiService.auth.getCurrentUser();
             profile = { name: user.name || user.username, email: user.email, id: user.id };
             await loadBooks();
@@ -127,70 +188,40 @@
         async function borrow(id) {
             try {
                 await apiService.books.borrow(id, profile.id);
-                showPopup("Success", "Book borrowed successfully", "✅");
-                await loadBooks();
                 await loadMyBooks();
+                const newRecord = borrowedRecords.find(r => r.bookId && r.bookId._id === id);
+                const bookTitle = newRecord && newRecord.bookId ? newRecord.bookId.title : 'a book';
+                const dueDateStr = newRecord ? newRecord.dueDate : new Date(Date.now() + 10*24*60*60*1000).toLocaleDateString();
+                
+                // Add borrow success notification
+                notifications.unshift({
+                    title: "Book Borrowed ✅",
+                    message: `Borrowed "${bookTitle}". Due date: ${new Date(dueDateStr).toLocaleDateString()}`,
+                    type: 'success',
+                    date: new Date().toLocaleDateString(),
+                    persist: true
+                });
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                
+                checkDeadlines();
+                updateNotificationBadge();
+                
+                showPopup("✅ Success", `"${bookTitle}" borrowed! Due: ${new Date(dueDateStr).toLocaleDateString()}`, "📚");
+                await loadBooks();
                 renderHome();
-            } catch (e) { showPopup("Error", e.message, "❌"); }
+            } catch (e) { 
+                showPopup("❌ Error", e.message, "❌"); 
+            }
         }
 
         async function loadMyBooks() {
             try {
                 const res = await apiService.books.getBorrowedByUser(profile.id);
                 borrowedRecords = res.data;
-                checkDeadlines();
                 renderMyBooks();
+                checkDeadlines();
+                updateNotificationBadge();
             } catch (e) { console.error(e); }
-        }
-
-        function checkDeadlines() {
-            notifications = [];
-            const now = new Date();
-            borrowedRecords.forEach(r => {
-                const dueDate = new Date(r.dueDate);
-                const diffTime = dueDate - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays < 0) {
-                    notifications.push({
-                        title: "Book Overdue!",
-                        message: `The book "${r.bookId.title}" was due on ${dueDate.toLocaleDateString()}. Please return it immediately to avoid fines.`,
-                        type: "danger"
-                    });
-                } else if (diffDays <= 2) {
-                    notifications.push({
-                        title: "Due Soon",
-                        message: `The book "${r.bookId.title}" is due in ${diffDays} day(s).`,
-                        type: "warning"
-                    });
-                }
-            });
-            updateBadge();
-            renderNotifications();
-        }
-
-        function updateBadge() {
-            const badge = document.getElementById('notifBadge');
-            if (notifications.length > 0) {
-                badge.style.display = 'inline-block';
-                badge.innerText = notifications.length;
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        function renderNotifications() {
-            const container = document.getElementById('notificationsList');
-            if (notifications.length === 0) {
-                container.innerHTML = "<p style='color: #666;'>No new alerts.</p>";
-                return;
-            }
-            container.innerHTML = notifications.map(n => `
-                <div style="background: ${n.type === 'danger' ? '#fee2e2' : '#fef3c7'}; padding: 15px 20px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid ${n.type === 'danger' ? '#dc2626' : '#d97706'};">
-                    <div style="font-weight: bold; color: #0a1a2f;">${n.title}</div>
-                    <div style="font-size: 0.9rem; color: #4b5563; margin-top: 4px;">${n.message}</div>
-                </div>
-            `).join('');
         }
 
         async function returnBook(bookId, recordId) {
@@ -252,10 +283,23 @@
         document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-                document.getElementById(btn.dataset.page + 'Page').classList.add('active-page');
+                const targetPage = document.getElementById(btn.dataset.page + 'Page');
+                targetPage.classList.add('active-page');
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i === btn));
+                if (btn.dataset.page === 'notifications') {
+                    renderNotifications();
+                    updateNotificationBadge();
+                }
             };
         });
+        
+        document.getElementById('clearAllBtn').onclick = () => {
+            notifications = [];
+            localStorage.setItem('notifications', JSON.stringify(notifications)); // Persist clear
+            renderNotifications();
+            updateNotificationBadge();
+            showPopup('Cleared!', 'All notifications cleared.', '✅');
+        };
 
         document.getElementById('searchBookBtn').onclick = renderHome;
         window.onload = init;

@@ -20,8 +20,8 @@ apiClient.interceptors.request.use((config) => {
 
 // Auth endpoints
 export const authAPI = {
-  login: (username, password) => 
-    apiClient.post('/auth/login', { username, password }),
+  login: (username, password, role) => 
+    apiClient.post('/auth/login', { username, password, role }),
   signup: (username, password, email, name, role) =>
     apiClient.post('/auth/signup', { username, password, email, name, role }),
   logout: () =>
@@ -42,6 +42,7 @@ export const userAPI = {
 // Book endpoints
 export const bookAPI = {
   getAllBooks: () => apiClient.get('/books'),
+  getAllBorrowRecords: () => apiClient.get('/books/records'),
   getBookById: (id) => apiClient.get(`/books/${id}`),
   getBooksByCategory: (category) => apiClient.get(`/books/category/${category}`),
   createBook: (bookData) => apiClient.post('/books', bookData),

@@ -52,24 +52,59 @@ const authController = {
     try {
       const { username, password, email, name, role } = req.body;
 
+      console.log('[Signup] Received body:', req.body);
+
+      // Validate required fields
       if (!username || !password || !email) {
-        return res.status(400).json({ error: 'Username, password, and email are required' });
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Username, password, and email are required' 
+        });
       }
 
-      const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+      // Trim and sanitize inputs
+      const trimmedUsername = username.trim();
+      const trimmedEmail = email.trim().toLowerCase();
+      const trimmedName = (name || trimmedUsername).trim();
+
+      if (trimmedUsername.length < 3) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Username must be at least 3 characters' 
+        });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Password must be at least 6 characters' 
+        });
+      }
+
+      // Check for existing user
+      const existingUser = await User.findOne({ 
+        $or: [{ username: trimmedUsername }, { email: trimmedEmail }] 
+      });
+      
       if (existingUser) {
-        return res.status(409).json({ error: 'Username or email already exists' });
+        const field = existingUser.username === trimmedUsername ? 'Username' : 'Email';
+        return res.status(409).json({ 
+          success: false, 
+          error: `${field} already exists` 
+        });
       }
 
+      // Create new user
       const newUser = new User({
-        username,
+        username: trimmedUsername,
         password,
-        email,
-        name: name || username,
+        email: trimmedEmail,
+        name: trimmedName,
         role: role || 'student'
       });
 
       await newUser.save();
+      console.log('[Signup] User saved successfully:', newUser.username);
 
       res.status(201).json({
         success: true,
@@ -78,11 +113,35 @@ const authController = {
           id: newUser._id,
           username: newUser.username,
           email: newUser.email,
-          role: newUser.role
+          role: newUser.role,
+          name: newUser.name
         }
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error('[Signup] Error:', error.message);
+      
+      // Handle mongoose validation errors
+      if (error.name === 'ValidationError') {
+        const messages = Object.values(error.errors).map(e => e.message);
+        return res.status(400).json({ 
+          success: false, 
+          error: messages.join(', ') 
+        });
+      }
+      
+      // Handle duplicate key errors
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyValue)[0];
+        return res.status(409).json({ 
+          success: false, 
+          error: `${field} already exists` 
+        });
+      }
+
+      res.status(500).json({ 
+        success: false, 
+        error: error.message 
+      });
     }
   },
 

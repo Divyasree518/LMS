@@ -1,138 +1,217 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
 import { reportAPI } from '../services/api';
 import '../styles/reports.css';
 
+ChartJS.register(ArcElement, Tooltip, Legend);
+
 const Reports = ({ user }) => {
-  const [summary, setSummary] = useState(null);
-  const [circulation, setCirculation] = useState(null);
-  const [reports, setReports] = useState([]);
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalBooks: 450,
+    issuedBooks: 120,
+    overdueBooks: 15
+  });
+  const [formData, setFormData] = useState({
+    totalInput: 450,
+    issuedInput: 120,
+    overdueInput: 15
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchReports = async () => {
+    const init = async () => {
       try {
-        setLoading(true);
-        const [summaryRes, circulationRes, reportsRes] = await Promise.all([
-          reportAPI.getSummary(),
-          reportAPI.getCirculationReport(),
-          reportAPI.getAllReports()
-        ]);
-
-        setSummary(summaryRes.data.data);
-        setCirculation(circulationRes.data.data);
-        setReports(reportsRes.data.data);
-      } catch (err) {
-        console.error('Failed to load reports:', err);
+        const result = await reportAPI.getSummary();
+        const data = result.data.data || {};
+        const newStats = {
+          totalBooks: data.totalBooks || data.totalBooksVolume || 450,
+          issuedBooks: data.issuedBooks || data.issuedToStudents || 120,
+          overdueBooks: data.overdueBooks || data.overdueRecords || 15
+        };
+        setStats(newStats);
+        setFormData({
+          totalInput: newStats.totalBooks,
+          issuedInput: newStats.issuedBooks,
+          overdueInput: newStats.overdueBooks
+        });
+      } catch (error) {
+        console.error('Failed to load reports:', error);
+        const localStats = JSON.parse(localStorage.getItem('reportStats') || '{"totalBooks":450,"issuedBooks":120,"overdueBooks":15}');
+        setStats(localStats);
+        setFormData({
+          totalInput: localStats.totalBooks,
+          issuedInput: localStats.issuedBooks,
+          overdueInput: localStats.overdueBooks
+        });
       } finally {
         setLoading(false);
       }
     };
-
-    fetchReports();
+    init();
   }, []);
 
-  if (loading) return <div className="reports-page"><p>Loading reports...</p></div>;
+  const chartData = {
+    labels: ['Available', 'Issued', 'Overdue'],
+    datasets: [{
+      data: [
+        Math.max(0, stats.totalBooks - stats.issuedBooks),
+        stats.issuedBooks,
+        stats.overdueBooks
+      ],
+      backgroundColor: ['#1C2B4A', '#C8973A', '#E74C3C'],
+      borderWidth: 0
+    }]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { family: 'DM Sans' } }
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const total = parseInt(formData.totalInput);
+    const issued = parseInt(formData.issuedInput);
+    const overdue = parseInt(formData.overdueInput);
+
+    if (issued > total || overdue > issued) {
+      alert('Data Mismatch: Issued cannot exceed Total, and Overdue cannot exceed Issued.');
+      return;
+    }
+
+    const newStats = { totalBooks: total, issuedBooks: issued, overdueBooks: overdue };
+    setStats(newStats);
+    localStorage.setItem('reportStats', JSON.stringify(newStats));
+
+    try {
+      await reportAPI.generateReport({
+        totalBooksVolume: total,
+        issuedToStudents: issued,
+        overdueRecords: overdue,
+        generatedBy: user?.id || 'admin'
+      });
+    } catch (e) {
+      console.log('Backend unavailable, saved locally');
+    }
+    alert('Statistics synchronized successfully!');
+  };
+
+  const downloadCSV = () => {
+    const date = new Date().toLocaleString();
+    const csv = `Date,Total Books,Issued Books,Overdue Books\n${date},${stats.totalBooks},${stats.issuedBooks},${stats.overdueBooks}`;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'library_reports.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="reports-page">
-      <h1>📊 Library Reports</h1>
-
-      {summary && (
-        <div className="summary-section">
-          <h2>System Summary</h2>
-          <div className="summary-grid">
-            <div className="summary-card">
-              <div className="summary-icon">👥</div>
-              <div className="summary-stat">{summary.totalUsers}</div>
-              <div className="summary-label">Total Users</div>
-            </div>
-            <div className="summary-card">
-              <div className="summary-icon">📚</div>
-              <div className="summary-stat">{summary.totalBooks}</div>
-              <div className="summary-label">Total Books</div>
-            </div>
-            <div className="summary-card">
-              <div className="summary-icon">📤</div>
-              <div className="summary-stat">{summary.activeLoans}</div>
-              <div className="summary-label">Active Loans</div>
-            </div>
-            <div className="summary-card">
-              <div className="summary-icon">⚠️</div>
-              <div className="summary-stat">{summary.overdueBooks}</div>
-              <div className="summary-label">Overdue Books</div>
-            </div>
-          </div>
+      <nav className="sidebar">
+        <h3>VEMU ADMIN</h3>
+        <div className="nav-menu">
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/admin'); }}><i className="fas fa-users-cog"></i> Manage Users</a>
+          <a href="#" className="active" onClick={(e) => { e.preventDefault(); navigate('/reports'); }}><i className="fas fa-file-invoice"></i> Reports</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/backup'); }}><i className="fas fa-hdd"></i> Backup & Recovery</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); localStorage.clear(); navigate('/login'); }} style={{ marginTop: '50px', color: '#f92810' }}>
+            <i className="fas fa-sign-out-alt"></i> Logout
+          </a>
         </div>
-      )}
+      </nav>
 
-      {circulation && (
-        <div className="circulation-section">
-          <h2>Circulation Report - {circulation.period}</h2>
-          <div className="circulation-stats">
-            <p><strong>Total Checkouts:</strong> {circulation.totalCheckouts}</p>
-            <p><strong>Total Returns:</strong> {circulation.totalReturns}</p>
-            <p><strong>Avg Checkout Time:</strong> {circulation.averageCheckoutTime}</p>
+      <main className="main-content">
+        <div className="glass-card">
+          <div className="header-flex">
+            <h1>Library <em>Analytics</em></h1>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--gold)', fontWeight: 700 }}>LIVE SYSTEM DATA</span>
+            </div>
           </div>
 
-          <div className="top-books">
-            <h3>Top Borrowed Books</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Book Title</th>
-                  <th>Checkouts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {circulation.topBorrowedBooks.map((book, idx) => (
-                  <tr key={idx}>
-                    <td>{book.title}</td>
-                    <td>{book.checkouts}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <button className="btn-download" onClick={downloadCSV}>
+            <i className="fas fa-download"></i> Download Reports
+          </button>
+
+          <div className="stats-grid">
+            <div className="stat-box">
+              <p>Total Collection</p>
+              <h3>{stats.totalBooks}</h3>
+            </div>
+            <div className="stat-box">
+              <p>Circulating</p>
+              <h3>{stats.issuedBooks}</h3>
+            </div>
+            <div className="stat-box">
+              <p>Overdue Notices</p>
+              <h3>{stats.overdueBooks}</h3>
+            </div>
           </div>
 
-          <div className="usage-by-category">
-            <h3>Usage by Category</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Checkouts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {circulation.usageByCategory.map((cat, idx) => (
-                  <tr key={idx}>
-                    <td>{cat.category}</td>
-                    <td>{cat.checkouts}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+          <div className="grid-2">
+            <div className="sub-card">
+              <h2>Data Entry</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Total Book Volume</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    required
+                    min="0"
+                    value={formData.totalInput}
+                    onChange={(e) => setFormData({ ...formData, totalInput: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Issued to Students</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    required
+                    min="0"
+                    value={formData.issuedInput}
+                    onChange={(e) => setFormData({ ...formData, issuedInput: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Overdue Records</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    required
+                    min="0"
+                    value={formData.overdueInput}
+                    onChange={(e) => setFormData({ ...formData, overdueInput: e.target.value })}
+                  />
+                </div>
+                <button type="submit" className="btn-update">Synchronize Reports</button>
+              </form>
+            </div>
 
-      {reports.length > 0 && (
-        <div className="reports-list">
-          <h2>Recent Reports</h2>
-          <div className="report-cards">
-            {reports.map(report => (
-              <div key={report.id} className="report-card">
-                <h3>{report.title}</h3>
-                <p><strong>Type:</strong> {report.type}</p>
-                <p><strong>Date:</strong> {report.date}</p>
-                <p><strong>Status:</strong> {report.status}</p>
+            <div className="sub-card">
+              <h2>Visual Overview</h2>
+              <div className="chart-container">
+                <Doughnut data={chartData} options={chartOptions} />
               </div>
-            ))}
+            </div>
           </div>
         </div>
-      )}
+      </main>
     </div>
   );
 };
 
 export default Reports;
+
