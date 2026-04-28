@@ -16,8 +16,12 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors({ origin: true, credentials: true }));
+// ✅ Middleware (UPDATED CORS)
+app.use(cors({
+  origin: "https://lms-1-auxd.onrender.com", // your frontend URL
+  credentials: true
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -41,6 +45,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date() });
 });
 
+// Optional root route (avoids "Cannot GET /")
+app.get('/', (req, res) => {
+  res.send('Backend is running 🚀');
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -49,6 +58,5 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
-  console.log(`CORS enabled for frontend on http://localhost:3000`);
+  console.log(`Backend server running on port ${PORT}`);
 });
