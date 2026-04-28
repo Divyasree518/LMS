@@ -189,6 +189,103 @@
   cursor: not-allowed;
 }
 
+/* Borrowed Books / My Books */
+.mybooks-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #8899aa;
+}
+
+.borrowed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.borrowed-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafbfc;
+  border-radius: 20px;
+  padding: 1.2rem 1.5rem;
+  border: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+}
+
+.borrowed-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.borrowed-card.overdue {
+  background: #fff5f5;
+  border-color: #f0b0b0;
+  border-left: 4px solid #d9534f;
+}
+
+.borrowed-info {
+  flex: 1;
+}
+
+.borrowed-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #0a1a2f;
+}
+
+.borrowed-author {
+  font-size: 0.9rem;
+  color: #667788;
+  margin-top: 4px;
+}
+
+.borrowed-meta {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #556677;
+}
+
+.due-normal {
+  color: #1f7840;
+  font-weight: 600;
+}
+
+.due-overdue {
+  color: #d9534f;
+  font-weight: 700;
+}
+
+.fine-badge {
+  display: inline-block;
+  margin-top: 8px;
+  background: #d9534f;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.btn-return {
+  background: #0a1a2f;
+  color: #d4af37;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+.btn-return:hover {
+  background: #1a2a4f;
+}
+
 .profile-row {
   padding: 12px 0;
   border-bottom: 1px solid #eee;
@@ -490,3 +587,4 @@
   padding-left: 1.8rem;
   margin-top: 0.25rem;
 }
+

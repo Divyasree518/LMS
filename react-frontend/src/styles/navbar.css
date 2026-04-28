@@ -97,6 +97,12 @@
 }
 
 .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  line-height: 1;
+  margin: 0;
   padding: 8px 18px;
   border: 1.5px solid var(--parchment);
   border-radius: 10px;
@@ -107,6 +113,7 @@
   color: var(--ink-soft);
   cursor: pointer;
   transition: all 0.2s ease;
+  vertical-align: middle;
 }
 
 .btn-ghost:hover {
@@ -116,6 +123,12 @@
 }
 
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  line-height: 1;
+  margin: 0;
   padding: 8px 20px;
   border: none;
   border-radius: 10px;
@@ -127,6 +140,7 @@
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow: 0 3px 12px rgba(28, 43, 74, 0.3);
+  vertical-align: middle;
 }
 
 .btn-primary:hover {
@@ -162,6 +176,9 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 
 @media (max-width: 768px) {
@@ -186,6 +203,10 @@
   }
 
   .mobile-menu-toggle {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
   }
 }

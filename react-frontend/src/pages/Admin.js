@@ -195,8 +195,8 @@ const Admin = ({ user }) => {
                   <td>{u.role.charAt(0).toUpperCase() + u.role.slice(1)}</td>
                   <td className={u.status === 'Active' ? 'status-active' : 'status-inactive'}>{u.status || 'Active'}</td>
                   <td>
-                    <button className="btn edit-btn" onClick={() => openEditModal(u)}>Edit</button>
-                    <button className="btn delete-btn" onClick={() => handleDeleteUser(u)}>Delete</button>
+                    <button className="btn edit-btn" style={{ padding: '3px 4px', width: '42px', fontSize: '0.65rem' }} onClick={() => openEditModal(u)}>Edit</button>
+                    <button className="btn delete-btn" style={{ padding: '3px 4px', width: '42px', fontSize: '0.65rem' }} onClick={() => handleDeleteUser(u)}>Delete</button>
                   </td>
                 </tr>
               ))}
@@ -220,7 +220,7 @@ const Admin = ({ user }) => {
                   <td>{u.role.charAt(0).toUpperCase() + u.role.slice(1)}</td>
                   <td>{u.deletedOn}</td>
                   <td>
-                    <button className="btn restore-btn" onClick={() => handleRestoreUser(u)}>Restore</button>
+                    <button className="btn restore-btn" style={{ padding: '3px 4px', width: '42px', fontSize: '0.65rem' }} onClick={() => handleRestoreUser(u)}>Restore</button>
                   </td>
                 </tr>
               ))}

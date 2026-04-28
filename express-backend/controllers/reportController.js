@@ -2,10 +2,20 @@ const User = require('../models/User');
 const Book = require('../models/Book');
 const BorrowRecord = require('../models/BorrowRecord');
 const Report = require('../models/Report');
+const mockStore = require('../data/mockStore');
 
 const reportController = {
   getAllReports: async (req, res) => {
     try {
+      if (!global.dbConnected) {
+        const reports = mockStore.reports.sort((a, b) => b.createdAt - a.createdAt);
+        return res.json({
+          success: true,
+          count: reports.length,
+          data: reports
+        });
+      }
+
       const reports = await Report.find().sort({ createdAt: -1 });
       res.json({
         success: true,
@@ -19,6 +29,39 @@ const reportController = {
 
   getSummary: async (req, res) => {
     try {
+      if (!global.dbConnected) {
+        const totalUsers = mockStore.users.length;
+        const totalBooks = mockStore.books.length;
+        const activeLoans = mockStore.borrowRecords.filter(r => r.status === 'borrowed').length;
+        const now = new Date();
+        const overdueBooks = mockStore.borrowRecords.filter(r => r.status === 'borrowed' && r.dueDate < now).length;
+
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const registeredToday = mockStore.users.filter(u => u.createdAt >= todayStart).length;
+
+        const thisMonthStart = new Date();
+        thisMonthStart.setDate(1);
+        thisMonthStart.setHours(0, 0, 0, 0);
+        const booksAddedThisMonth = mockStore.books.filter(b => b.createdAt >= thisMonthStart).length;
+
+        const circulatingBooks = mockStore.books.reduce((sum, b) => sum + (b.borrowed || 0), 0);
+
+        const summary = {
+          totalUsers,
+          totalBooks,
+          circulatingBooks,
+          activeLoans,
+          overdueBooks,
+          registeredToday,
+          booksAddedThisMonth,
+          totalFinesCollected: 0
+        };
+
+        return res.json({ success: true, data: summary });
+      }
+
+      // MongoDB mode
       const [totalUsers, totalBooks, activeLoans, overdueBooks] = await Promise.all([
         User.countDocuments(),
         Book.countDocuments(),
@@ -67,9 +110,55 @@ const reportController = {
 
   getCirculationReport: async (req, res) => {
     try {
-      // Last 30 days
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
+      if (!global.dbConnected) {
+        const checkouts = mockStore.borrowRecords.filter(r => r.borrowDate >= thirtyDaysAgo && ['borrowed', 'returned'].includes(r.status)).length;
+        const returns = mockStore.borrowRecords.filter(r => r.borrowDate >= thirtyDaysAgo && r.status === 'returned').length;
+
+        // Top borrowed books
+        const bookCounts = {};
+        mockStore.borrowRecords
+          .filter(r => r.borrowDate >= thirtyDaysAgo)
+          .forEach(r => {
+            bookCounts[r.bookId] = (bookCounts[r.bookId] || 0) + 1;
+          });
+        
+        const topBooks = Object.entries(bookCounts)
+          .map(([bookId, count]) => {
+            const book = mockStore.findOne(mockStore.books, { _id: bookId });
+            return { title: book ? book.title : 'Unknown', checkouts: count };
+          })
+          .sort((a, b) => b.checkouts - a.checkouts)
+          .slice(0, 5);
+
+        // Usage by category
+        const categoryCounts = {};
+        mockStore.borrowRecords
+          .filter(r => r.borrowDate >= thirtyDaysAgo)
+          .forEach(r => {
+            const book = mockStore.findOne(mockStore.books, { _id: r.bookId });
+            const cat = book ? book.category : 'General';
+            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+          });
+
+        const usageByCategory = Object.entries(categoryCounts)
+          .map(([category, checkouts]) => ({ _id: category, checkouts }))
+          .sort((a, b) => b.checkouts - a.checkouts);
+
+        const report = {
+          period: 'Last 30 days',
+          totalCheckouts: checkouts,
+          totalReturns: returns,
+          averageCheckoutTime: '14 days',
+          topBorrowedBooks: topBooks,
+          usageByCategory
+        };
+
+        return res.json({ success: true, data: report });
+      }
+
+      // MongoDB mode
       const [circulation, topBooks, usageByCategory] = await Promise.all([
         BorrowRecord.aggregate([
           { $match: { borrowDate: { $gte: thirtyDaysAgo } } },
@@ -164,6 +253,26 @@ const reportController = {
 
       if (!type) {
         return res.status(400).json({ error: 'Report type is required' });
+      }
+
+      if (!global.dbConnected) {
+        const report = {
+          _id: mockStore.generateId(),
+          type: type || 'summary',
+          period: {
+            startDate: startDate ? new Date(startDate) : new Date(),
+            endDate: endDate ? new Date(endDate) : new Date()
+          },
+          data: req.body,
+          generatedBy: req.body.generatedBy,
+          createdAt: new Date()
+        };
+        mockStore.reports.push(report);
+        return res.status(201).json({
+          success: true,
+          message: 'Report generated',
+          data: report
+        });
       }
 
       const report = new Report({

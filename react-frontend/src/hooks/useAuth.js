@@ -65,12 +65,16 @@ export const useAuth = () => {
       return { success: true, message: response.data.message };
     } catch (err) {
       console.error('[useAuth] Signup error:', err.message);
+      let message;
       if (err.response) {
         console.error('[useAuth] Server responded with:', err.response.status, err.response.data);
+        message = err.response.data?.error || err.response.data?.message || `Server error (${err.response.status})`;
       } else if (err.request) {
         console.error('[useAuth] No response received. Is backend running?');
+        message = 'Cannot connect to server. Please ensure the backend is running on localhost:5000';
+      } else {
+        message = err.message || 'Signup failed. Please try again.';
       }
-      const message = err.response?.data?.error || 'Signup failed. Please check console for details.';
       setError(message);
       return { success: false, error: message };
     } finally {

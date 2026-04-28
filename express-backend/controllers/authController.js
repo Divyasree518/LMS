@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const mockStore = require('../data/mockStore');
 
 const authController = {
   login: async (req, res) => {
@@ -10,13 +11,28 @@ const authController = {
         return res.status(400).json({ error: 'Username and password are required' });
       }
 
-      const user = await User.findOne({ username });
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+      let user;
+      if (!global.dbConnected) {
+        user = mockStore.findOne(mockStore.users, { username });
+        if (user) {
+          const bcryptjs = require('bcryptjs');
+          const isMatch = bcryptjs.compareSync(password, user.password);
+          if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+          }
+        }
+      } else {
+        user = await User.findOne({ username });
+        if (!user) {
+          return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+          return res.status(401).json({ error: 'Invalid credentials' });
+        }
       }
 
-      const isPasswordValid = await user.comparePassword(password);
-      if (!isPasswordValid) {
+      if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
@@ -31,6 +47,9 @@ const authController = {
         process.env.JWT_SECRET || 'secret_key',
         { expiresIn: '24h' }
       );
+
+      const userResponse = { ...user };
+      delete userResponse.password;
 
       res.json({
         success: true,
@@ -81,7 +100,53 @@ const authController = {
         });
       }
 
-      // Check for existing user
+      if (!global.dbConnected) {
+        // Mock mode signup
+        const existingUser = mockStore.findOne(mockStore.users, { 
+          $or: [{ username: trimmedUsername }, { email: trimmedEmail }] 
+        });
+        
+        if (existingUser) {
+          const field = existingUser.username === trimmedUsername ? 'Username' : 'Email';
+          return res.status(409).json({ 
+            success: false, 
+            error: `${field} already exists` 
+          });
+        }
+
+        const bcryptjs = require('bcryptjs');
+        const salt = bcryptjs.genSaltSync(10);
+        const hashedPassword = bcryptjs.hashSync(password, salt);
+
+        const newUser = {
+          _id: mockStore.generateId(),
+          username: trimmedUsername,
+          password: hashedPassword,
+          email: trimmedEmail,
+          name: trimmedName,
+          role: role || 'student',
+          department: 'General',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+
+        mockStore.users.push(newUser);
+        console.log('[Signup] User saved successfully (mock):', newUser.username);
+
+        return res.status(201).json({
+          success: true,
+          message: 'Account created successfully',
+          user: {
+            id: newUser._id,
+            username: newUser.username,
+            email: newUser.email,
+            role: newUser.role,
+            name: newUser.name
+          }
+        });
+      }
+
+      // MongoDB mode signup
       const existingUser = await User.findOne({ 
         $or: [{ username: trimmedUsername }, { email: trimmedEmail }] 
       });
@@ -94,7 +159,6 @@ const authController = {
         });
       }
 
-      // Create new user
       const newUser = new User({
         username: trimmedUsername,
         password,
@@ -158,7 +222,13 @@ const authController = {
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
-      const user = await User.findById(decoded.userId);
+      
+      let user;
+      if (!global.dbConnected) {
+        user = mockStore.findOne(mockStore.users, { _id: decoded.userId });
+      } else {
+        user = await User.findById(decoded.userId);
+      }
 
       if (!user) {
         return res.status(401).json({ error: 'User not found' });

@@ -206,29 +206,26 @@ td {
 .edit-btn {
   background: var(--blue);
   color: white;
-  margin-right: 4px;
-  padding: 3px 8px;
-  font-size: 0.65rem;
-  border-radius: 4px;
-  line-height: 1;
+  margin-right: 5px;
+  padding: 4px 0;
+  width: 50px;
+  text-align: center;
 }
 
 .delete-btn {
   background: var(--danger);
   color: white;
-  padding: 3px 8px;
-  font-size: 0.65rem;
-  border-radius: 4px;
-  line-height: 1;
+  padding: 4px 0;
+  width: 50px;
+  text-align: center;
 }
 
 .restore-btn {
   background: var(--success);
   color: white;
-  padding: 3px 8px;
-  font-size: 0.65rem;
-  border-radius: 4px;
-  line-height: 1;
+  padding: 4px 0;
+  width: 50px;
+  text-align: center;
 }
 
 /* Notification Toast */

@@ -36,6 +36,7 @@ const StudentPortal = ({ user }) => {
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState('home');
   const [books, setBooks] = useState([]);
+  const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(true);
@@ -99,12 +100,28 @@ const StudentPortal = ({ user }) => {
     localStorage.setItem(NOTIFS_KEY, JSON.stringify(notifications));
   }, [notifications]);
 
+  // Load borrowed books when profile is ready or page changes to mybooks
+  useEffect(() => {
+    if (profile.id) {
+      loadBorrowedBooks();
+    }
+  }, [profile.id]);
+
   const loadBooks = async () => {
     try {
       const res = await bookAPI.getAllBooks();
       setBooks(res.data.data || []);
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const loadBorrowedBooks = async () => {
+    try {
+      const res = await bookAPI.getBorrowedByUser(profile.id);
+      setBorrowedBooks(res.data.data || []);
+    } catch (e) {
+      console.error('Failed to load borrowed books', e);
     }
   };
 
@@ -147,10 +164,47 @@ const StudentPortal = ({ user }) => {
       showPopup('Success', 'Book borrowed successfully', '✅');
       addNotification('success', 'Book Borrowed', `You have successfully borrowed "${book?.title || 'a book'}". Return it within 14 days.`);
       await loadBooks();
+      await loadBorrowedBooks();
     } catch (e) {
       showPopup('Error', e.message || 'Failed to borrow', '❌');
       addNotification('alert', 'Borrow Failed', e.message || 'Unable to borrow the selected book. Please try again.');
     }
+  };
+
+  const returnBook = async (bookId, recordId) => {
+    try {
+      const res = await bookAPI.returnBook(bookId, recordId);
+      const fine = res.data.data?.fine || 0;
+      if (fine > 0) {
+        showPopup('Returned', `Book returned. Overdue fine: Rs. ${fine}`, '💰');
+        addNotification('alert', 'Book Returned', `Book returned with an overdue fine of Rs. ${fine}.`);
+      } else {
+        showPopup('Success', 'Book returned successfully', '✅');
+        addNotification('success', 'Book Returned', 'Book returned on time. No fine applicable.');
+      }
+      await loadBooks();
+      await loadBorrowedBooks();
+    } catch (e) {
+      showPopup('Error', e.response?.data?.error || e.message || 'Failed to return book', '❌');
+      addNotification('alert', 'Return Failed', e.response?.data?.error || 'Unable to return the book. Please try again.');
+    }
+  };
+
+  const isOverdue = (dueDate) => {
+    if (!dueDate) return false;
+    return new Date() > new Date(dueDate);
+  };
+
+  const calculateOverdueDays = (dueDate) => {
+    if (!dueDate) return 0;
+    const diff = new Date() - new Date(dueDate);
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : 0;
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString();
   };
 
   const filteredBooks = books.filter(b =>
@@ -187,6 +241,15 @@ const StudentPortal = ({ user }) => {
             onClick={() => setActivePage('home')}
           >
             🏠 Home
+          </button>
+          <button
+            className={`nav-item ${activePage === 'mybooks' ? 'active' : ''}`}
+            onClick={() => setActivePage('mybooks')}
+          >
+            📚 My Books
+            {borrowedBooks.length > 0 && (
+              <span className="notification-badge">{borrowedBooks.length}</span>
+            )}
           </button>
 
           {/* Notification Bell Dropdown */}
@@ -295,6 +358,50 @@ const StudentPortal = ({ user }) => {
                 ))
               )}
             </div>
+          </div>
+        </div>
+
+        {/* My Books Page */}
+        <div id="myBooksPage" className={`page ${activePage === 'mybooks' ? 'active-page' : ''}`}>
+          <div className="card-elegant">
+            <h2>📚 My Borrowed Books</h2>
+            {borrowedBooks.length === 0 ? (
+              <p className="mybooks-empty">You have no borrowed books. Go to Home to borrow some!</p>
+            ) : (
+              <div className="borrowed-list">
+                {borrowedBooks.map(record => {
+                  const book = record.bookId || {};
+                  const overdue = isOverdue(record.dueDate);
+                  const overdueDays = calculateOverdueDays(record.dueDate);
+                  return (
+                    <div className={`borrowed-card ${overdue ? 'overdue' : ''}`} key={record._id}>
+                      <div className="borrowed-info">
+                        <div className="borrowed-title">{book.title || 'Unknown Book'}</div>
+                        <div className="borrowed-author">{book.author || 'Unknown Author'}</div>
+                        <div className="borrowed-meta">
+                          <span>Borrowed: {formatDate(record.borrowDate)}</span>
+                          <span className={overdue ? 'due-overdue' : 'due-normal'}>
+                            Due: {formatDate(record.dueDate)}
+                            {overdue && ` (Overdue by ${overdueDays} day${overdueDays > 1 ? 's' : ''})`}
+                          </span>
+                        </div>
+                        {overdue && (
+                          <div className="fine-badge">
+                            Estimated Fine: Rs. {overdueDays * 1}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        className="btn-return"
+                        onClick={() => returnBook(book._id || book.id, record._id)}
+                      >
+                        Return Book
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 

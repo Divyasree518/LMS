@@ -49,7 +49,8 @@ export const bookAPI = {
   updateBook: (id, bookData) => apiClient.put(`/books/${id}`, bookData),
   deleteBook: (id) => apiClient.delete(`/books/${id}`),
   borrowBook: (id, userId) => apiClient.post(`/books/${id}/borrow`, { userId }),
-  returnBook: (id) => apiClient.post(`/books/${id}/return`, {})
+  returnBook: (id, borrowRecordId) => apiClient.post(`/books/${id}/return`, { borrowRecordId }),
+  getBorrowedByUser: (userId) => apiClient.get(`/books/borrowed/${userId}`)
 };
 
 // Report endpoints
