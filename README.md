@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # VEMU Library Management System (LMS)
 
 ## Overview
@@ -22,3 +23,6 @@
 
 **Backend Removed**: All API/fetch calls converted to localStorage. Fully static!
 
+=======
+# LMS
+>>>>>>> f5d7d45e6a7034e94fd9c9950810922c6d861305
