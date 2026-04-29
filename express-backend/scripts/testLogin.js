@@ -3,8 +3,16 @@ const http = require('http');
 function login(username, password, role) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({ username, password, role });
-    const opts = { hostname: 'localhost', port: 5000, path: '/api/auth/login', method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': data.length } };
-    const req = http.request(opts, r => { let d=''; r.on('data', c => d+=c); r.on('end', () => resolve(JSON.parse(d))); });
+   const opts = {
+  hostname: 'lms-uk7j.onrender.com',
+  port: 443,
+  path: '/api/auth/login',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Content-Length': data.length
+  }
+};
     req.on('error', reject);
     req.write(data);
     req.end();

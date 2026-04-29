@@ -3,7 +3,7 @@
  * Handles communication with the MongoDB-backed Express server.
  */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://lms-uk7j.onrender.com/api';
 
 const apiService = {
     // Helper for fetch requests

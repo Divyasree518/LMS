@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://lms-uk7j.onrender.com/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -11,7 +11,7 @@ const apiClient = axios.create({
 
 // Add token to requests if it exists
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -25,7 +25,7 @@ export const authAPI = {
   signup: (username, password, email, name, role) =>
     apiClient.post('/auth/signup', { username, password, email, name, role }),
   logout: () =>
-    apiClient.post('/auth/logout', { token: localStorage.getItem('authToken') }),
+    apiClient.post('/auth/logout', { token: localStorage.getItem('authToken') || localStorage.getItem('token') }),
   validateToken: () =>
     apiClient.get('/auth/validate')
 };

@@ -37,6 +37,7 @@ export const useAuth = () => {
       const response = await authAPI.login(username, password, role);
       const { token: newToken, user: userData } = response.data;
       localStorage.setItem('authToken', newToken);
+      localStorage.setItem('token', newToken); // added for compatibility
       localStorage.setItem('user', JSON.stringify(userData));
       setToken(newToken);
       setUser(userData);
