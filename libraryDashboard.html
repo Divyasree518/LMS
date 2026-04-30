@@ -52,6 +52,12 @@
             letter-spacing: 1px;
         }
 
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
         .nav-menu a {
             display: flex;
             align-items: center;
@@ -245,6 +251,7 @@
             <a onclick="showSection('circulation')" id="link-circulation"><i class="fas fa-sync"></i> Issue/Return</a>
             <a onclick="showSection('calc')" id="link-calc"><i class="fas fa-calculator"></i> Fine Calculator</a>
             <a onclick="showSection('logs')" id="link-logs"><i class="fas fa-history"></i> Activity Logs</a>
+            <a onclick="apiService.auth.logout()" style="margin-top: auto; color: #ff6b6b;"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </div>
 
