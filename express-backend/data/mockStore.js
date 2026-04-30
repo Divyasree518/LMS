@@ -311,12 +311,12 @@ function find(arr, query = {}) {
 function matchQuery(item, query) {
   if (!query || Object.keys(query).length === 0) return true;
   for (const [key, value] of Object.entries(query)) {
-    if (key.startsWith('$')) continue; // Skip Mongo operators for simple case
     if (key === '$or') {
       const orMatch = value.some(subQ => matchQuery(item, subQ));
       if (!orMatch) return false;
       continue;
     }
+    if (key.startsWith('$')) continue; // Skip other Mongo operators for simple case
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       // Handle operators like $lt, $gte, etc.
       for (const [op, opVal] of Object.entries(value)) {

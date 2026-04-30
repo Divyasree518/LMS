@@ -46,7 +46,7 @@ export const useAuth = () => {
       let message;
       if (!err.response && err.request) {
         // Network error - backend is not reachable
-        message = 'Cannot connect to server. Please ensure the backend is running on localhost:5000';
+        message = 'Cannot connect to server. Please ensure the backend is running.';
       } else {
         message = err.response?.data?.error || 'Login failed';
       }
@@ -72,7 +72,7 @@ export const useAuth = () => {
         message = err.response.data?.error || err.response.data?.message || `Server error (${err.response.status})`;
       } else if (err.request) {
         console.error('[useAuth] No response received. Is backend running?');
-        message = 'Cannot connect to server. Please ensure the backend is running on localhost:5000';
+        message = 'Cannot connect to server. Please ensure the backend is running.';
       } else {
         message = err.message || 'Signup failed. Please try again.';
       }

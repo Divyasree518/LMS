@@ -19,7 +19,7 @@ connectDB();
 
 // ✅ Middleware (UPDATED CORS)
 app.use(cors({
-  origin: "https://lms-1-auxd.onrender.com", // your frontend URL
+  origin: ["https://lms-1-auxd.onrender.com", "http://localhost:3000"], // allow frontend URLs
   credentials: true
 }));
 
